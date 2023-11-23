@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 	"unsafe"
+
+	"github.com/df-mc/worldupgrader/blockupgrader"
 )
 
 // State holds a combination of a name and properties, together with a version.
@@ -24,7 +26,7 @@ type StateHash struct {
 }
 
 // HashState produces a hash for the block properties held by the blockState.
-func HashState(state State) StateHash {
+func HashState(state blockupgrader.BlockState) StateHash {
 	if state.Properties == nil {
 		return StateHash{Name: state.Name}
 	}

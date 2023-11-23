@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	"github.com/df-mc/dragonfly/server/world"
+	"github.com/df-mc/worldupgrader/blockupgrader"
 	"github.com/sandertv/gophertunnel/minecraft/nbt"
 )
 
@@ -17,7 +18,7 @@ var (
 	// stateToRuntimeID maps a block state hash to a runtime ID.
 	stateToRuntimeID = make(map[StateHash]uint32)
 	// runtimeIDToState maps a runtime ID to a state.
-	runtimeIDToState = make(map[uint32]State)
+	runtimeIDToState = make(map[uint32]blockupgrader.BlockState)
 
 	// itemRuntimeIDsToNames holds a map to translate item runtime IDs to string IDs.
 	itemRuntimeIDsToNames = make(map[int32]string)
@@ -31,7 +32,7 @@ func init() {
 
 	// Register all block states present in the block_states.nbt file. These are all possible options registered
 	// blocks may encode to.
-	var s State
+	var s blockupgrader.BlockState
 	var rid uint32
 	for {
 		if err := dec.Decode(&s); err != nil {
@@ -62,7 +63,8 @@ func init() {
 
 // StateToRuntimeID converts a name and its state properties to a runtime ID.
 func StateToRuntimeID(name string, properties map[string]any) (runtimeID uint32, found bool) {
-	rid, ok := stateToRuntimeID[HashState(State{Name: name, Properties: properties})]
+	upgraded := blockupgrader.Upgrade(blockupgrader.BlockState{Name: name, Properties: properties})
+	rid, ok := stateToRuntimeID[HashState(upgraded)]
 	return rid, ok
 }
 

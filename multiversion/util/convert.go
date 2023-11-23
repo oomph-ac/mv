@@ -60,6 +60,7 @@ func UpgradeBlockRuntimeID(input uint32, mappings mappings.MVMapping) uint32 {
 	if !ok {
 		return LatestAirRID
 	}
+
 	runtimeID, ok := latest.StateToRuntimeID(name, properties)
 	if !ok {
 		return LatestAirRID
