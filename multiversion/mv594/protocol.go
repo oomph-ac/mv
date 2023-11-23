@@ -53,8 +53,8 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := mv618.Downgrade(pks, conn)
-	for _, pk := range pks {
+	packets := []gtpacket.Packet{}
+	for _, pk := range mv618.Downgrade(pks, conn) {
 		switch pk := pk.(type) {
 		case *gtpacket.Disconnect:
 			packets = append(packets, &v618packet.Disconnect{
@@ -151,6 +151,5 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 		}
 	}
 
-	pks = nil
 	return packets
 }
