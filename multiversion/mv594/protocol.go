@@ -2,6 +2,7 @@ package mv594
 
 import (
 	"github.com/oomph-ac/mv/multiversion/mv594/packet"
+	v618packet "github.com/oomph-ac/mv/multiversion/mv618/packet"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -44,6 +45,11 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 
 	packets := []gtpacket.Packet{}
 	switch pk := pk.(type) {
+	case *gtpacket.Disconnect:
+		packets = append(packets, &v618packet.Disconnect{
+			HideDisconnectionScreen: pk.HideDisconnectionScreen,
+			Message:                 pk.Message,
+		})
 	case *gtpacket.StartGame:
 		packets = append(packets, &packet.StartGame{
 			EntityUniqueID:                 pk.EntityUniqueID,
