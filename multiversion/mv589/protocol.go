@@ -3,7 +3,6 @@ package mv589
 import (
 	"github.com/oomph-ac/mv/multiversion/mv589/packet"
 	"github.com/oomph-ac/mv/multiversion/mv594"
-	v594packet "github.com/oomph-ac/mv/multiversion/mv594/packet"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -30,9 +29,9 @@ func (Protocol) NewWriter(w minecraft.ByteWriter, shieldID int32) protocol.IO {
 
 func (Protocol) Packets(listener bool) gtpacket.Pool {
 	if listener {
-		return v594packet.NewServerPool()
+		return packet.NewServerPool()
 	}
-	return v594packet.NewClientPool()
+	return packet.NewClientPool()
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
