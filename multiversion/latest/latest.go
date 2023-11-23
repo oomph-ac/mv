@@ -39,7 +39,8 @@ func init() {
 			break
 		}
 
-		stateToRuntimeID[HashState(s)] = rid
+		upgraded := blockupgrader.Upgrade(s)
+		stateToRuntimeID[HashState(upgraded)] = rid
 		runtimeIDToState[rid] = s
 		rid++
 	}
