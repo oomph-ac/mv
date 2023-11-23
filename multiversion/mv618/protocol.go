@@ -42,16 +42,23 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 		return []gtpacket.Packet{downgraded}
 	}
 
+	return Downgrade([]gtpacket.Packet{pk}, conn)
+}
+
+func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := []gtpacket.Packet{}
-	switch pk := pk.(type) {
-	case *gtpacket.Disconnect:
-		packets = append(packets, &packet.Disconnect{
-			HideDisconnectionScreen: pk.HideDisconnectionScreen,
-			Message:                 pk.Message,
-		})
-	default:
-		packets = append(packets, pk)
+	for _, pk := range pks {
+		switch pk := pk.(type) {
+		case *gtpacket.Disconnect:
+			packets = append(packets, &packet.Disconnect{
+				HideDisconnectionScreen: pk.HideDisconnectionScreen,
+				Message:                 pk.Message,
+			})
+		default:
+			packets = append(packets, pk)
+		}
 	}
 
+	pks = nil
 	return packets
 }
