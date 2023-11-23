@@ -68,6 +68,25 @@ func UpgradeBlockRuntimeID(input uint32, mappings mappings.MVMapping) uint32 {
 	return runtimeID
 }
 
+// UpgradeBlockPacket translates a block packet from the legacy version to the latest version.
+func UpgradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
+	handled := true
+	switch pk := pk.(type) {
+	case *packet.InventoryTransaction:
+		switch data := pk.TransactionData.(type) {
+		case *protocol.UseItemTransactionData:
+			if data.BlockRuntimeID > 0 {
+				data.BlockRuntimeID = UpgradeBlockRuntimeID(data.BlockRuntimeID, mapping)
+			}
+			pk.TransactionData = data
+		}
+	default:
+		handled = false
+	}
+
+	return pk, handled
+}
+
 // DowngradeBlockPacket translates a block packet from the latest version to the legacy version.
 func DowngradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
 	handled := true
