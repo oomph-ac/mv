@@ -67,14 +67,13 @@ func UpgradeBlockRuntimeID(input uint32, mappings mappings.MVMapping) uint32 {
 	return runtimeID
 }
 
-// DowngradeBlockPackets translates block packets from the latest version to the legacy version.
-func DowngradeBlockPackets(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) []packet.Packet {
-	packets := []packet.Packet{}
+// DowngradeBlockPacket translates a block packet from the latest version to the legacy version.
+func DowngradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
+	handled := true
 	switch pk := pk.(type) {
 	case *packet.LevelChunk:
 		if pk.SubChunkCount == protocol.SubChunkRequestModeLimited || pk.SubChunkCount == protocol.SubChunkRequestModeLimitless {
-			packets = append(packets, pk)
-			return packets
+			return pk, true
 		}
 
 		r := world.Overworld.Range()
@@ -82,8 +81,9 @@ func DowngradeBlockPackets(conn *minecraft.Conn, pk packet.Packet, mapping mappi
 		c, err := chunk.NetworkDecode(LatestAirRID, buff, int(pk.SubChunkCount), conn.GameData().BaseGameVersion == "1.17.40", r)
 		if err != nil {
 			fmt.Println(err)
-			return nil
+			return pk, true
 		}
+
 		downgraded := chunk.New(mapping.LegacyAirRID, r)
 		for subInd, sub := range c.Sub() {
 			for layerInd, layer := range sub.Layers() {
@@ -121,8 +121,9 @@ func DowngradeBlockPackets(conn *minecraft.Conn, pk packet.Packet, mapping mappi
 				subChunk, err := chunk.DecodeSubChunk(LatestAirRID, world.Overworld.Range(), buff, pointer.Make(uint8(0)), chunk.NetworkEncoding)
 				if err != nil {
 					fmt.Println(err)
-					return nil
+					return pk, true
 				}
+
 				downgraded := chunk.NewSubChunk(mapping.LegacyAirRID)
 				for layerInd, layer := range subChunk.Layers() {
 					downgradedLayer := downgraded.Layer(uint8(layerInd))
@@ -142,8 +143,9 @@ func DowngradeBlockPackets(conn *minecraft.Conn, pk packet.Packet, mapping mappi
 		}
 	case *packet.UpdateBlock:
 		pk.NewBlockRuntimeID = DowngradeBlockRuntimeID(pk.NewBlockRuntimeID, mapping)
+	default:
+		handled = false
 	}
 
-	packets = append(packets, pk)
-	return packets
+	return pk, handled
 }

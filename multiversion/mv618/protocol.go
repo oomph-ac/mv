@@ -38,20 +38,20 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := util.DowngradeBlockPackets(conn, pk, Mapping)
-
-	for i, pk := range packets {
-		dc, ok := pk.(*gtpacket.Disconnect)
-		if !ok {
-			continue
-		}
-
-		packets[i] = &packet.Disconnect{
-			Message:                 dc.Message,
-			HideDisconnectionScreen: dc.HideDisconnectionScreen,
-		}
+	if downgraded, ok := util.DowngradeBlockPacket(conn, pk, Mapping); ok {
+		return []gtpacket.Packet{downgraded}
 	}
 
-	packets = append(packets, pk)
+	packets := []gtpacket.Packet{}
+	switch pk := pk.(type) {
+	case *gtpacket.Disconnect:
+		packets = append(packets, &packet.Disconnect{
+			HideDisconnectionScreen: pk.HideDisconnectionScreen,
+			Message:                 pk.Message,
+		})
+	default:
+		packets = append(packets, pk)
+	}
+
 	return packets
 }
