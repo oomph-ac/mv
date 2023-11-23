@@ -72,6 +72,10 @@ func UpgradeBlockRuntimeID(input uint32, mappings mappings.MVMapping) uint32 {
 func DowngradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
 	handled := true
 	switch pk := pk.(type) {
+	case *packet.LevelEvent:
+		if pk.EventType == packet.LevelEventParticlesDestroyBlock || pk.EventType == packet.LevelEventParticlesCrackBlock {
+			pk.EventData = int32(DowngradeBlockRuntimeID(uint32(pk.EventData), mapping))
+		}
 	case *packet.LevelChunk:
 		if pk.SubChunkCount == protocol.SubChunkRequestModeLimited || pk.SubChunkCount == protocol.SubChunkRequestModeLimitless {
 			return pk, true
