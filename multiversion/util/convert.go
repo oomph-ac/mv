@@ -167,6 +167,15 @@ func DowngradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappin
 		}
 	case *packet.UpdateBlock:
 		pk.NewBlockRuntimeID = DowngradeBlockRuntimeID(pk.NewBlockRuntimeID, mapping)
+	case *packet.UpdateBlockSynced:
+		pk.NewBlockRuntimeID = DowngradeBlockRuntimeID(pk.NewBlockRuntimeID, mapping)
+	case *packet.UpdateSubChunkBlocks:
+		for i, block := range pk.Blocks {
+			pk.Blocks[i].BlockRuntimeID = DowngradeBlockRuntimeID(block.BlockRuntimeID, mapping)
+		}
+		for i, block := range pk.Extra {
+			pk.Blocks[i].BlockRuntimeID = DowngradeBlockRuntimeID(block.BlockRuntimeID, mapping)
+		}
 	default:
 		handled = false
 	}
