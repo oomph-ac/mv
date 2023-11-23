@@ -4,6 +4,7 @@ import (
 	"github.com/oomph-ac/mv/multiversion/mv589/packet"
 	"github.com/oomph-ac/mv/multiversion/mv594"
 	v594packet "github.com/oomph-ac/mv/multiversion/mv594/packet"
+	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
@@ -35,10 +36,18 @@ func (Protocol) Packets(listener bool) gtpacket.Pool {
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	if upgraded, ok := util.UpgradeBlockPacket(conn, pk, Mapping); ok {
+		return []gtpacket.Packet{upgraded}
+	}
+
 	return []gtpacket.Packet{pk}
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	if downgraded, ok := util.DowngradeBlockPacket(conn, pk, Mapping); ok {
+		return []gtpacket.Packet{downgraded}
+	}
+
 	return Downgrade([]gtpacket.Packet{pk}, conn)
 }
 
