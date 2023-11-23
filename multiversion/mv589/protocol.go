@@ -59,7 +59,7 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				EnumValues:   pk.EnumValues,
 				Suffixes:     pk.Suffixes,
 				Enums:        pk.Enums,
-				Commands:     pk.Commands,
+				Commands:     packet.DowngradeCommands(pk.Commands),
 				DynamicEnums: pk.DynamicEnums,
 				Constraints:  pk.Constraints,
 			})
