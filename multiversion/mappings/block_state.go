@@ -41,11 +41,13 @@ func blockMapping(blockStateData []byte, oldFormat bool) MVBlockMapping {
 			break
 		}
 
+		s = blockupgrader.Upgrade(s)
 		rid := uint32(len(blocks))
 		blocks = append(blocks, protocol.BlockEntry{
 			Name:       s.Name,
 			Properties: s.Properties,
 		})
+
 		stateToRuntimeID[latest.HashState(s)] = rid
 		runtimeIDToState[rid] = s
 	}
