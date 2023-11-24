@@ -96,7 +96,7 @@ func DowngradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappin
 			pk.EventData = int32(DowngradeBlockRuntimeID(uint32(pk.EventData), mapping))
 		}
 	case *packet.LevelSoundEvent:
-		if pk.SoundType == packet.SoundEventPlace || pk.SoundType == packet.SoundEventHit || pk.SoundType == packet.SoundEventItemUseOn {
+		if pk.SoundType == packet.SoundEventPlace || pk.SoundType == packet.SoundEventHit || pk.SoundType == packet.SoundEventItemUseOn || pk.SoundType == packet.SoundEventLand {
 			pk.ExtraData = int32(DowngradeBlockRuntimeID(uint32(pk.ExtraData), mapping))
 		}
 	case *packet.LevelChunk:
