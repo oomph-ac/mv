@@ -68,18 +68,58 @@ func UpgradeBlockRuntimeID(input uint32, mappings mappings.MVMapping) uint32 {
 	return runtimeID
 }
 
-// UpgradeBlockPacket translates a block packet from the legacy version to the latest version.
-func UpgradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
+// DefaultUpgrade translates a packet from the legacy version to the latest version.
+func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
 	handled := true
 	switch pk := pk.(type) {
+	case *packet.CraftingEvent:
+		for i, input := range pk.Input {
+			pk.Input[i].Stack = UpgradeItem(input.Stack, mapping)
+		}
+		for i, output := range pk.Output {
+			pk.Output[i].Stack = UpgradeItem(output.Stack, mapping)
+		}
 	case *packet.InventoryTransaction:
+		for i, action := range pk.Actions {
+			pk.Actions[i].OldItem.Stack = UpgradeItem(action.OldItem.Stack, mapping)
+			pk.Actions[i].NewItem.Stack = UpgradeItem(action.NewItem.Stack, mapping)
+		}
 		switch data := pk.TransactionData.(type) {
 		case *protocol.UseItemTransactionData:
 			if data.BlockRuntimeID > 0 {
 				data.BlockRuntimeID = UpgradeBlockRuntimeID(data.BlockRuntimeID, mapping)
 			}
 			pk.TransactionData = data
+			pk.TransactionData = data
+		case *protocol.UseItemOnEntityTransactionData:
+			data.HeldItem.Stack = UpgradeItem(data.HeldItem.Stack, mapping)
+			pk.TransactionData = data
+		case *protocol.ReleaseItemTransactionData:
+			data.HeldItem.Stack = UpgradeItem(data.HeldItem.Stack, mapping)
+			pk.TransactionData = data
 		}
+	case *packet.ItemStackRequest:
+		for i, request := range pk.Requests {
+			var actions = make([]protocol.StackRequestAction, 0)
+			for _, action := range request.Actions {
+				switch data := action.(type) {
+				case *protocol.CraftResultsDeprecatedStackRequestAction:
+					for k, item := range data.ResultItems {
+						data.ResultItems[k] = UpgradeItem(item, mapping)
+					}
+					action = data
+				}
+				actions = append(actions, action)
+			}
+			pk.Requests[i].Actions = actions
+		}
+	case *packet.MobArmourEquipment:
+		pk.Helmet.Stack = UpgradeItem(pk.Helmet.Stack, mapping)
+		pk.Chestplate.Stack = UpgradeItem(pk.Chestplate.Stack, mapping)
+		pk.Leggings.Stack = UpgradeItem(pk.Leggings.Stack, mapping)
+		pk.Boots.Stack = UpgradeItem(pk.Boots.Stack, mapping)
+	case *packet.MobEquipment:
+		pk.NewItem.Stack = UpgradeItem(pk.NewItem.Stack, mapping)
 	default:
 		handled = false
 	}
@@ -87,10 +127,24 @@ func UpgradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings
 	return pk, handled
 }
 
-// DowngradeBlockPacket translates a block packet from the latest version to the legacy version.
-func DowngradeBlockPacket(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
+// DefaultDowngrade translates a packet from the latest version to the legacy version.
+func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
 	handled := true
 	switch pk := pk.(type) {
+	case *packet.AddItemActor:
+		pk.Item.Stack = DowngradeItem(pk.Item.Stack, mapping)
+	case *packet.AddPlayer:
+		pk.HeldItem.Stack = DowngradeItem(pk.HeldItem.Stack, mapping)
+	case *packet.CreativeContent:
+		for i, item := range pk.Items {
+			pk.Items[i].Item = DowngradeItem(item.Item, mapping)
+		}
+	case *packet.InventoryContent:
+		for i, item := range pk.Content {
+			pk.Content[i].Stack = DowngradeItem(item.Stack, mapping)
+		}
+	case *packet.InventorySlot:
+		pk.NewItem.Stack = DowngradeItem(pk.NewItem.Stack, mapping)
 	case *packet.LevelEvent:
 		if pk.EventType == packet.LevelEventParticlesDestroyBlock || pk.EventType == packet.LevelEventParticlesCrackBlock {
 			pk.EventData = int32(DowngradeBlockRuntimeID(uint32(pk.EventData), mapping))

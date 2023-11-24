@@ -36,7 +36,7 @@ func (Protocol) Packets(listener bool) gtpacket.Pool {
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	updated, ok := util.UpgradeBlockPacket(conn, pk, Mapping)
+	updated, ok := util.DefaultUpgrade(conn, pk, Mapping)
 	if ok {
 		return []gtpacket.Packet{updated}
 	}
@@ -45,7 +45,7 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	if downgraded, ok := util.DowngradeBlockPacket(conn, pk, Mapping); ok {
+	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
 		return []gtpacket.Packet{downgraded}
 	}
 
