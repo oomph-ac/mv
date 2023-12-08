@@ -72,13 +72,6 @@ func UpgradeBlockRuntimeID(input uint32, mappings mappings.MVMapping) uint32 {
 func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVMapping) (packet.Packet, bool) {
 	handled := true
 	switch pk := pk.(type) {
-	case *packet.CraftingEvent:
-		for i, input := range pk.Input {
-			pk.Input[i].Stack = UpgradeItem(input.Stack, mapping)
-		}
-		for i, output := range pk.Output {
-			pk.Output[i].Stack = UpgradeItem(output.Stack, mapping)
-		}
 	case *packet.InventoryTransaction:
 		for i, action := range pk.Actions {
 			pk.Actions[i].OldItem.Stack = UpgradeItem(action.OldItem.Stack, mapping)

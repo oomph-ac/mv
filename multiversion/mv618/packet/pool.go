@@ -1,14 +1,17 @@
 package packet
 
-import "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+import (
+	"github.com/oomph-ac/mv/multiversion/mv622/packet"
+	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+)
 
-func NewClientPool() packet.Pool {
+func NewClientPool() gtpacket.Pool {
 	pool := packet.NewClientPool()
 	return pool
 }
 
-func NewServerPool() packet.Pool {
+func NewServerPool() gtpacket.Pool {
 	pool := packet.NewServerPool()
-	pool[packet.IDDisconnect] = func() packet.Packet { return &Disconnect{} }
+	pool[gtpacket.IDDisconnect] = func() gtpacket.Packet { return &Disconnect{} }
 	return pool
 }

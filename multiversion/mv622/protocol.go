@@ -1,22 +1,22 @@
-package mv618
+package mv622
 
 import (
-	"github.com/oomph-ac/mv/multiversion/mv618/packet"
-	"github.com/oomph-ac/mv/multiversion/mv622"
+	"github.com/oomph-ac/mv/multiversion/mv622/packet"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
+
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
 type Protocol struct{}
 
 func (Protocol) ID() int32 {
-	return 618
+	return 622
 }
 
 func (Protocol) Ver() string {
-	return "1.20.30"
+	return "1.20.40"
 }
 
 func (Protocol) NewReader(r minecraft.ByteReader, shieldID int32, enableLimits bool) protocol.IO {
@@ -48,12 +48,12 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := []gtpacket.Packet{}
-	for _, pk := range mv622.Downgrade(pks, conn) {
+	for _, pk := range pks {
 		switch pk := pk.(type) {
-		case *gtpacket.Disconnect:
-			packets = append(packets, &packet.Disconnect{
-				HideDisconnectionScreen: pk.HideDisconnectionScreen,
-				Message:                 pk.Message,
+		case *gtpacket.ShowStoreOffer:
+			packets = append(packets, &packet.ShowStoreOffer{
+				OfferID: pk.OfferID,
+				ShowAll: false, // I don't think we can really translate this one.
 			})
 		default:
 			packets = append(packets, pk)
