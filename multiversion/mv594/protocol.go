@@ -36,8 +36,11 @@ func (Protocol) Packets(listener bool) gtpacket.Pool {
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	updated, ok := util.DefaultUpgrade(conn, pk, Mapping)
-	if ok {
+	if updated, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
+		if updated == nil {
+			return []gtpacket.Packet{}
+		}
+
 		return []gtpacket.Packet{updated}
 	}
 

@@ -114,6 +114,10 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 	case *packet.MobEquipment:
 		pk.NewItem.Stack = UpgradeItem(pk.NewItem.Stack, mapping)
 	default:
+		if pk.ID() == 53 {
+			return nil, true
+		}
+
 		handled = false
 	}
 
