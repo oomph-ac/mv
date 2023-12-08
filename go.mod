@@ -3,8 +3,8 @@ module github.com/oomph-ac/mv
 go 1.19
 
 require (
-	github.com/df-mc/dragonfly v0.9.10
-	github.com/df-mc/worldupgrader v1.0.11
+	github.com/df-mc/dragonfly v0.9.9
+	github.com/df-mc/worldupgrader v1.0.11-0.20231208193353-d636e603679e
 	github.com/go-gl/mathgl v1.1.0
 	github.com/google/uuid v1.4.0
 	github.com/pelletier/go-toml v1.9.5
