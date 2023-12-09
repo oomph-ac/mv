@@ -2,6 +2,7 @@ package mappings
 
 import (
 	_ "embed"
+
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/nbt"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
