@@ -3,6 +3,7 @@ package mappings
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 
 	"github.com/df-mc/worldupgrader/blockupgrader"
 	"github.com/oomph-ac/mv/multiversion/latest"
@@ -41,7 +42,10 @@ func blockMapping(blockStateData []byte, oldFormat bool) MVBlockMapping {
 			break
 		}
 
+		oldS := s
 		s = blockupgrader.Upgrade(s)
+		fmt.Println(oldS.Version, s.Version)
+
 		rid := uint32(len(blocks))
 		blocks = append(blocks, protocol.BlockEntry{
 			Name:       s.Name,
