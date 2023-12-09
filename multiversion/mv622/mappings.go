@@ -17,5 +17,5 @@ var (
 )
 
 func init() {
-	Mapping = mappings.Mapping(latest.BlockStateData, latest.ItemRuntimeIDData, false)
+	Mapping = mappings.Mapping(blockStates, latest.ItemRuntimeIDData, false)
 }
