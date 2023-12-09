@@ -1,17 +1,17 @@
 package packet
 
 import (
-	"github.com/oomph-ac/mv/multiversion/mv622/packet"
-	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+	v622packet "github.com/oomph-ac/mv/multiversion/mv622/packet"
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
-func NewClientPool() gtpacket.Pool {
-	pool := packet.NewClientPool()
+func NewClientPool() packet.Pool {
+	pool := v622packet.NewClientPool()
 	return pool
 }
 
-func NewServerPool() gtpacket.Pool {
-	pool := packet.NewServerPool()
-	pool[gtpacket.IDDisconnect] = func() gtpacket.Packet { return &Disconnect{} }
+func NewServerPool() packet.Pool {
+	pool := v622packet.NewServerPool()
+	pool[packet.IDDisconnect] = func() packet.Packet { return &Disconnect{} }
 	return pool
 }

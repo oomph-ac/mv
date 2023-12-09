@@ -22,6 +22,7 @@ var LatestAirRID, _ = latest.StateToRuntimeID("minecraft:air", nil)
 func DowngradeItem(input protocol.ItemStack, mappings mappings.MVMapping) protocol.ItemStack {
 	name, _ := latest.ItemRuntimeIDToName(input.NetworkID)
 	networkID, _ := mappings.ItemIDByName(name)
+	fmt.Println(name, networkID)
 	input.ItemType.NetworkID = networkID
 	if input.BlockRuntimeID > 0 {
 		input.BlockRuntimeID = int32(DowngradeBlockRuntimeID(uint32(input.BlockRuntimeID), mappings))
@@ -82,7 +83,6 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 			if data.BlockRuntimeID > 0 {
 				data.BlockRuntimeID = UpgradeBlockRuntimeID(data.BlockRuntimeID, mapping)
 			}
-			pk.TransactionData = data
 			pk.TransactionData = data
 		case *protocol.UseItemOnEntityTransactionData:
 			data.HeldItem.Stack = UpgradeItem(data.HeldItem.Stack, mapping)
