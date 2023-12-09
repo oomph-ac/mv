@@ -11,9 +11,9 @@ import (
 
 var (
 	//go:embed block_states.nbt
-	blockStateData []byte
+	BlockStateData []byte
 	//go:embed item_runtime_ids.nbt
-	itemRuntimeIDData []byte
+	ItemRuntimeIDData []byte
 
 	// stateToRuntimeID maps a block state hash to a runtime ID.
 	stateToRuntimeID = make(map[StateHash]uint32)
@@ -28,7 +28,7 @@ var (
 
 // init initializes the item and block state mappings.
 func init() {
-	dec := nbt.NewDecoder(bytes.NewBuffer(blockStateData))
+	dec := nbt.NewDecoder(bytes.NewBuffer(BlockStateData))
 
 	// Register all block states present in the block_states.nbt file. These are all possible options registered
 	// blocks may encode to.
@@ -46,7 +46,7 @@ func init() {
 	}
 
 	var m map[string]int32
-	err := nbt.Unmarshal(itemRuntimeIDData, &m)
+	err := nbt.Unmarshal(ItemRuntimeIDData, &m)
 	if err != nil {
 		panic(err)
 	}

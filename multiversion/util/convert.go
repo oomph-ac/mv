@@ -21,12 +21,9 @@ var LatestAirRID, _ = latest.StateToRuntimeID("minecraft:air", nil)
 // downgraded successfully.
 func DowngradeItem(input protocol.ItemStack, mappings mappings.MVMapping) protocol.ItemStack {
 	name, _ := latest.ItemRuntimeIDToName(input.NetworkID)
-	fmt.Println("expecting to downgrade", name)
 	networkID, _ := mappings.ItemIDByName(name)
-	fmt.Println("result is", networkID)
 	input.ItemType.NetworkID = networkID
 	if input.BlockRuntimeID > 0 {
-		fmt.Println(name, "is block")
 		input.BlockRuntimeID = int32(DowngradeBlockRuntimeID(uint32(input.BlockRuntimeID), mappings))
 	}
 	return input
