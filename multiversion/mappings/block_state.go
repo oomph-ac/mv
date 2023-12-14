@@ -41,7 +41,13 @@ func blockMapping(blockStateData []byte, oldFormat bool) MVBlockMapping {
 			break
 		}
 
+		oldS := s
 		s = blockupgrader.Upgrade(s)
+
+		if oldS.Version > s.Version {
+			s = oldS
+		}
+
 		rid := uint32(len(blocks))
 		blocks = append(blocks, protocol.BlockEntry{
 			Name:       s.Name,
