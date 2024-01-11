@@ -179,11 +179,10 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				Radius:   pk.Radius,
 			})
 		case *gtpacket.SetActorData:
-			packets = append(packets, &gtpacket.SetActorData{
-				EntityRuntimeID:  pk.EntityRuntimeID,
-				EntityMetadata:   pk.EntityMetadata,
-				EntityProperties: pk.EntityProperties,
-				Tick:             pk.Tick,
+			packets = append(packets, &packet.SetActorData{
+				EntityRuntimeID: pk.EntityRuntimeID,
+				EntityMetadata:  pk.EntityMetadata,
+				Tick:            pk.Tick,
 			})
 		case *gtpacket.UpdateAttributes:
 			packets = append(packets, &packet.UpdateAttributes{
