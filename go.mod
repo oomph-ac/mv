@@ -40,3 +40,5 @@ require (
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 )
+
+replace github.com/sandertv/go-raknet v1.12.1 => github.com/tedacmc/tedac-raknet v0.0.4

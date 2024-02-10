@@ -2,6 +2,7 @@ package mv622
 
 import (
 	"github.com/oomph-ac/mv/multiversion/mv622/packet"
+	"github.com/oomph-ac/mv/multiversion/mv630"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -55,7 +56,7 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
+	packets := mv630.Downgrade(pks, conn)
 	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *gtpacket.ShowStoreOffer:
