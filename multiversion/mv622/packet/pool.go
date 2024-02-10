@@ -12,5 +12,6 @@ func NewClientPool() packet.Pool {
 
 func NewServerPool() packet.Pool {
 	pool := v630packet.NewServerPool()
+	pool[packet.IDShowStoreOffer] = func() packet.Packet { return &ShowStoreOffer{} }
 	return pool
 }
