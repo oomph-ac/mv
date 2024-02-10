@@ -10,8 +10,6 @@ import (
 var (
 	//go:embed mappings/block_states.nbt
 	blockStates []byte
-	//go:embed mappings/item_runtime_ids.nbt
-	itemRuntimeIDData []byte
 
 	Mapping mappings.MVMapping
 )
