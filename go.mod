@@ -41,4 +41,7 @@ require (
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 )
 
+replace github.com/sandertv/gophertunnel v1.35.0 => github.com/oomph-ac/gophertunnel v0.0.0-20240210012800-073ea43d2569
+
 replace github.com/sandertv/go-raknet v1.12.1 => github.com/tedacmc/tedac-raknet v0.0.4
+

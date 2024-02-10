@@ -35,6 +35,10 @@ func (Protocol) Packets(listener bool) gtpacket.Pool {
 	return packet.NewClientPool()
 }
 
+func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
+	return gtpacket.NewCTREncryption(key[:])
+}
+
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if updated, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
 		if updated == nil {
