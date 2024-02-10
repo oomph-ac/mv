@@ -19,6 +19,8 @@ github.com/df-mc/goleveldb v1.1.9 h1:ihdosZyy5jkQKrxucTQmN90jq/2lUwQnJZjIYIC/9YU
 github.com/df-mc/goleveldb v1.1.9/go.mod h1:+NHCup03Sci5q84APIA21z3iPZCuk6m6ABtg4nANCSk=
 github.com/df-mc/worldupgrader v1.0.11-0.20231208193353-d636e603679e h1:kaaHbpTo0HrGu3zALHR9/XWWm6j+Ahq9xvZQRNJHPfY=
 github.com/df-mc/worldupgrader v1.0.11-0.20231208193353-d636e603679e/go.mod h1:tsSOLTRm9mpG7VHvYpAjjZrkRHWmSbKZAm9bOLNnlDk=
+github.com/df-mc/worldupgrader v1.0.11-0.20240207125233-fc8d558fde6e h1:e3NSPr3u4fWAXLvXxWf2aFOK0mzciKs5FgExL6v3DCY=
+github.com/df-mc/worldupgrader v1.0.11-0.20240207125233-fc8d558fde6e/go.mod h1:tsSOLTRm9mpG7VHvYpAjjZrkRHWmSbKZAm9bOLNnlDk=
 github.com/df-mc/worldupgrader v1.0.12 h1:Ry6XkcwclSMfRPdiwcfSFRWqTkVglu0u3oLd0X2CxZ4=
 github.com/df-mc/worldupgrader v1.0.12/go.mod h1:tsSOLTRm9mpG7VHvYpAjjZrkRHWmSbKZAm9bOLNnlDk=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=

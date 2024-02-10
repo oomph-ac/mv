@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.6
 
 require (
-	github.com/df-mc/dragonfly v0.9.13-0.20240209111632-1cb1df2a7b7a
+	github.com/df-mc/dragonfly v0.9.9
 	github.com/df-mc/worldupgrader v1.0.12
 	github.com/go-gl/mathgl v1.1.0
 	github.com/google/uuid v1.6.0
@@ -44,4 +44,3 @@ require (
 replace github.com/sandertv/gophertunnel v1.35.0 => github.com/oomph-ac/gophertunnel v0.0.0-20240210012800-073ea43d2569
 
 replace github.com/sandertv/go-raknet v1.12.1 => github.com/tedacmc/tedac-raknet v0.0.4
-
