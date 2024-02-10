@@ -44,10 +44,10 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 			return []gtpacket.Packet{}
 		}
 
-		return []gtpacket.Packet{upgraded}
+		return Upgrade([]gtpacket.Packet{upgraded}, conn)
 	}
 
-	return []gtpacket.Packet{pk}
+	return Upgrade([]gtpacket.Packet{pk}, conn)
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
@@ -56,6 +56,10 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 	}
 
 	return Downgrade([]gtpacket.Packet{pk}, conn)
+}
+
+func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	return mv622.Upgrade(pks, conn)
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {

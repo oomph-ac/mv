@@ -44,10 +44,10 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 			return []gtpacket.Packet{}
 		}
 
-		return []gtpacket.Packet{upgraded}
+		return Upgrade([]gtpacket.Packet{upgraded}, conn)
 	}
 
-	return []gtpacket.Packet{pk}
+	return Upgrade([]gtpacket.Packet{pk}, conn)
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
@@ -56,6 +56,38 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 	}
 
 	return Downgrade([]gtpacket.Packet{pk}, conn)
+}
+
+func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	packets := []gtpacket.Packet{}
+	for _, pk := range pks {
+		switch pk := pk.(type) {
+		case *packet.PlayerAuthInput:
+			packets = append(packets, &gtpacket.PlayerAuthInput{
+				Pitch:                  pk.Pitch,
+				Yaw:                    pk.Yaw,
+				MoveVector:             pk.MoveVector,
+				HeadYaw:                pk.HeadYaw,
+				InputData:              pk.InputData,
+				InputMode:              pk.InputMode,
+				PlayMode:               pk.PlayMode,
+				InteractionModel:       pk.InteractionModel,
+				GazeDirection:          pk.GazeDirection,
+				Tick:                   pk.Tick,
+				Delta:                  pk.Delta,
+				ItemInteractionData:    pk.ItemInteractionData,
+				ItemStackRequest:       pk.ItemStackRequest,
+				BlockActions:           pk.BlockActions,
+				AnalogueMoveVector:     pk.AnalogueMoveVector,
+				ClientPredictedVehicle: 0,
+			})
+		default:
+			packets = append(packets, pk)
+		}
+	}
+
+	pks = nil
+	return packets
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
