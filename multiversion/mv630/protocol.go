@@ -81,6 +81,15 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				AnalogueMoveVector:     pk.AnalogueMoveVector,
 				ClientPredictedVehicle: 0,
 			})
+		case *packet.LevelChunk:
+			packets = append(packets, &gtpacket.LevelChunk{
+				Position:        pk.Position,
+				HighestSubChunk: pk.HighestSubChunk,
+				SubChunkCount:   pk.SubChunkCount,
+				CacheEnabled:    pk.CacheEnabled,
+				BlobHashes:      pk.BlobHashes,
+				RawPayload:      pk.RawPayload,
+			})
 		default:
 			packets = append(packets, pk)
 		}
