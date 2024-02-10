@@ -89,6 +89,10 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				BlockActions:        pk.BlockActions,
 				AnalogueMoveVector:  pk.AnalogueMoveVector,
 			})
+		case *gtpacket.PlayerList:
+			packets = append(packets, &packet.PlayerList{
+				Entries: packet.DowngradePlayerEntries(pk.Entries),
+			})
 		default:
 			packets = append(packets, pk)
 		}
