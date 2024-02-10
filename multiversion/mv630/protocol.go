@@ -66,6 +66,7 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 			packets = append(packets, &gtpacket.PlayerAuthInput{
 				Pitch:                  pk.Pitch,
 				Yaw:                    pk.Yaw,
+				Position:               pk.Position,
 				MoveVector:             pk.MoveVector,
 				HeadYaw:                pk.HeadYaw,
 				InputData:              pk.InputData,
@@ -116,6 +117,7 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 			packets = append(packets, &packet.PlayerAuthInput{
 				Pitch:               pk.Pitch,
 				Yaw:                 pk.Yaw,
+				Position:            pk.Position,
 				MoveVector:          pk.MoveVector,
 				HeadYaw:             pk.HeadYaw,
 				InputData:           pk.InputData,
