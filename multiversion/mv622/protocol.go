@@ -68,6 +68,8 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				OfferID: pk.OfferID,
 				ShowAll: false, // I don't think we can really translate this one.
 			})
+		case *gtpacket.SetPlayerInventoryOptions, *gtpacket.PlayerToggleCrafterSlotRequest:
+			// These packets are not supported in 1.20.40, so we just ignore them.
 		default:
 			packets = append(packets, pk)
 		}
