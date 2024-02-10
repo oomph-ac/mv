@@ -2,6 +2,7 @@ package mv630
 
 import (
 	"github.com/oomph-ac/mv/multiversion/mv630/packet"
+	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 
@@ -38,11 +39,23 @@ func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	if upgraded, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
+		if upgraded == nil {
+			return []gtpacket.Packet{}
+		}
+
+		return []gtpacket.Packet{upgraded}
+	}
+
 	return []gtpacket.Packet{pk}
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	return []gtpacket.Packet{pk}
+	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
+		return []gtpacket.Packet{downgraded}
+	}
+
+	return Downgrade([]gtpacket.Packet{pk}, conn)
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {

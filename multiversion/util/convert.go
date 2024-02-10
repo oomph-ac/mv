@@ -115,6 +115,8 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 	default:
 		if pk.ID() == 53 {
 			return nil, true
+		} else if pk.ID() == 308 {
+			return nil, true
 		}
 
 		handled = false
