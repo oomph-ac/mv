@@ -82,6 +82,8 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 			if data.BlockRuntimeID > 0 {
 				data.BlockRuntimeID = UpgradeBlockRuntimeID(data.BlockRuntimeID, mapping)
 			}
+			data.HeldItem.Stack = UpgradeItem(data.HeldItem.Stack, mapping)
+
 			pk.TransactionData = data
 		case *protocol.UseItemOnEntityTransactionData:
 			data.HeldItem.Stack = UpgradeItem(data.HeldItem.Stack, mapping)
