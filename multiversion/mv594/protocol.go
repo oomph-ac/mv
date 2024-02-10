@@ -53,7 +53,7 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
-		return []gtpacket.Packet{downgraded}
+		return Downgrade([]gtpacket.Packet{downgraded}, conn)
 	}
 
 	return Downgrade([]gtpacket.Packet{pk}, conn)
