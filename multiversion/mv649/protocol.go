@@ -16,7 +16,7 @@ func (Protocol) ID() int32 {
 	return 649
 }
 
-func (Protocol) Name() string {
+func (Protocol) Ver() string {
 	return "1.20.60"
 }
 
