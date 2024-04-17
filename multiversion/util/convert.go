@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/df-mc/dragonfly/server/world"
-	"github.com/oomph-ac/mv/internal/pointer"
 	"github.com/oomph-ac/mv/multiversion/chunk"
 	"github.com/oomph-ac/mv/multiversion/latest"
 	"github.com/oomph-ac/mv/multiversion/mappings"
@@ -200,7 +199,8 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 		for i, entry := range pk.SubChunkEntries {
 			if entry.Result == protocol.SubChunkResultSuccess && !pk.CacheEnabled {
 				buff := bytes.NewBuffer(entry.RawPayload)
-				subChunk, err := chunk.DecodeSubChunk(LatestAirRID, world.Overworld.Range(), buff, pointer.Make(uint8(0)), chunk.NetworkEncoding)
+				var index byte = 0
+				subChunk, err := chunk.DecodeSubChunk(LatestAirRID, world.Overworld.Range(), buff, &index, chunk.NetworkEncoding)
 				if err != nil {
 					fmt.Println(err)
 					return pk, true
