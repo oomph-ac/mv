@@ -41,6 +41,10 @@ func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if upgraded, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
+		if upgraded == nil {
+			return []gtpacket.Packet{}
+		}
+
 		return Upgrade(upgraded, conn)
 	}
 
@@ -49,6 +53,10 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
+		if downgraded == nil {
+			return []gtpacket.Packet{}
+		}
+
 		return Downgrade(downgraded, conn)
 	}
 
