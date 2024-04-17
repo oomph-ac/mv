@@ -105,6 +105,11 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := mv649.Downgrade(pks, conn)
 	for _, pk := range pks {
 		switch pk := pk.(type) {
+		case *gtpacket.NetworkSettings:
+			packets = append(packets, &gtpacket.NetworkSettings{
+				CompressionThreshold: 512,
+				CompressionAlgorithm: 0,
+			})
 		case *gtpacket.LevelChunk:
 			packets = append(packets, &packet.LevelChunk{
 				Position:        pk.Position,

@@ -1,18 +1,21 @@
 package packet
 
-import "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+import (
+	"github.com/oomph-ac/mv/multiversion/mv649/packet"
+	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+)
 
-func NewClientPool() packet.Pool {
+func NewClientPool() gtpacket.Pool {
 	pool := packet.NewClientPool()
-	pool[packet.IDPlayerAuthInput] = func() packet.Packet { return &PlayerAuthInput{} }
-	delete(pool, packet.IDSetHud)
+	pool[gtpacket.IDPlayerAuthInput] = func() gtpacket.Packet { return &PlayerAuthInput{} }
+	delete(pool, gtpacket.IDSetHud)
 	return pool
 }
 
-func NewServerPool() packet.Pool {
+func NewServerPool() gtpacket.Pool {
 	pool := packet.NewServerPool()
-	delete(pool, packet.IDSetHud)
-	pool[packet.IDLevelChunk] = func() packet.Packet { return &LevelChunk{} }
-	pool[packet.IDPlayerList] = func() packet.Packet { return &PlayerList{} }
+	delete(pool, gtpacket.IDSetHud)
+	pool[gtpacket.IDLevelChunk] = func() gtpacket.Packet { return &LevelChunk{} }
+	pool[gtpacket.IDPlayerList] = func() gtpacket.Packet { return &PlayerList{} }
 	return pool
 }
