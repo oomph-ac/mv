@@ -1,6 +1,8 @@
 package mv649
 
 import (
+	"fmt"
+
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -40,6 +42,8 @@ func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	fmt.Printf("upgrade %T\n", pk)
+
 	if upgraded, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
 		if upgraded == nil {
 			return []gtpacket.Packet{}
@@ -52,6 +56,8 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+	fmt.Printf("downgrade %T\n", pk)
+
 	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
 		if downgraded == nil {
 			return []gtpacket.Packet{}
