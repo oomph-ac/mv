@@ -101,6 +101,8 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				Position:  pk.Position,
 				DropBook:  false,
 			})
+		default:
+			packets = append(packets, pk)
 		}
 	}
 
@@ -163,6 +165,8 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				Particles:       pk.Particles,
 				Duration:        pk.Duration,
 			})
+		default:
+			packets = append(packets, pk)
 		}
 	}
 
