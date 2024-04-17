@@ -111,6 +111,35 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := []gtpacket.Packet{}
 	for _, pk := range pks {
 		switch pk := pk.(type) {
+		case *gtpacket.AvailableCommands:
+			for _, c := range pk.Commands {
+				for _, o := range c.Overloads {
+					for _, p := range o.Parameters {
+						switch p.Type {
+						case protocol.CommandArgTypeEquipmentSlots:
+							p.Type = packet.CommandArgTypeEquipmentSlots
+						case protocol.CommandArgTypeString:
+							p.Type = packet.CommandArgTypeString
+						case protocol.CommandArgTypeBlockPosition:
+							p.Type = packet.CommandArgTypeBlockPosition
+						case protocol.CommandArgTypePosition:
+							p.Type = packet.CommandArgTypePosition
+						case protocol.CommandArgTypeMessage:
+							p.Type = packet.CommandArgTypeMessage
+						case protocol.CommandArgTypeRawText:
+							p.Type = packet.CommandArgTypeRawText
+						case protocol.CommandArgTypeJSON:
+							p.Type = packet.CommandArgTypeJSON
+						case protocol.CommandArgTypeBlockStates:
+							p.Type = packet.CommandArgTypeBlockStates
+						case protocol.CommandArgTypeCommand:
+							p.Type = packet.CommandArgTypeCommand
+						}
+					}
+				}
+			}
+
+			packets = append(packets, pk)
 		case *gtpacket.SetActorMotion:
 			packets = append(packets, &packet.SetActorMotion{
 				Velocity:        pk.Velocity,
