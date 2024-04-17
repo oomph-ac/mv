@@ -45,10 +45,10 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 			return []gtpacket.Packet{}
 		}
 
-		return Upgrade(upgraded, conn)
+		return Upgrade([]gtpacket.Packet{pk}, conn)
 	}
 
-	return Upgrade(pk, conn)
+	return Upgrade([]gtpacket.Packet{pk}, conn)
 }
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
@@ -57,75 +57,78 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 			return []gtpacket.Packet{}
 		}
 
-		return Downgrade(downgraded, conn)
+		return Downgrade([]gtpacket.Packet{pk}, conn)
 	}
 
-	return Downgrade(pk, conn)
+	return Downgrade([]gtpacket.Packet{pk}, conn)
 }
 
-func Upgrade(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := []gtpacket.Packet{}
-	switch pk := pk.(type) {
-	case *packet.PlayerAuthInput:
-		packets = append(packets, &gtpacket.PlayerAuthInput{
-			Pitch:                  pk.Pitch,
-			Yaw:                    pk.Yaw,
-			Position:               pk.Position,
-			MoveVector:             pk.MoveVector,
-			HeadYaw:                pk.HeadYaw,
-			InputData:              pk.InputData,
-			InputMode:              pk.InputMode,
-			PlayMode:               pk.PlayMode,
-			InteractionModel:       pk.InteractionModel,
-			GazeDirection:          pk.GazeDirection,
-			Tick:                   pk.Tick,
-			Delta:                  pk.Delta,
-			ItemInteractionData:    pk.ItemInteractionData,
-			ItemStackRequest:       pk.ItemStackRequest,
-			BlockActions:           pk.BlockActions,
-			ClientPredictedVehicle: pk.ClientPredictedVehicle,
-			AnalogueMoveVector:     pk.AnalogueMoveVector,
-			VehicleRotation:        mgl32.Vec2{},
-		})
-	case *gtpacket.LecternUpdate:
-		packets = append(packets, &packet.LecternUpdate{
-			Page:      pk.Page,
-			PageCount: pk.PageCount,
-			Position:  pk.Position,
-			DropBook:  false,
-		})
+	for _, pk := range pks {
+		switch pk := pk.(type) {
+		case *packet.PlayerAuthInput:
+			packets = append(packets, &gtpacket.PlayerAuthInput{
+				Pitch:                  pk.Pitch,
+				Yaw:                    pk.Yaw,
+				Position:               pk.Position,
+				MoveVector:             pk.MoveVector,
+				HeadYaw:                pk.HeadYaw,
+				InputData:              pk.InputData,
+				InputMode:              pk.InputMode,
+				PlayMode:               pk.PlayMode,
+				InteractionModel:       pk.InteractionModel,
+				GazeDirection:          pk.GazeDirection,
+				Tick:                   pk.Tick,
+				Delta:                  pk.Delta,
+				ItemInteractionData:    pk.ItemInteractionData,
+				ItemStackRequest:       pk.ItemStackRequest,
+				BlockActions:           pk.BlockActions,
+				ClientPredictedVehicle: pk.ClientPredictedVehicle,
+				AnalogueMoveVector:     pk.AnalogueMoveVector,
+				VehicleRotation:        mgl32.Vec2{},
+			})
+		case *gtpacket.LecternUpdate:
+			packets = append(packets, &packet.LecternUpdate{
+				Page:      pk.Page,
+				PageCount: pk.PageCount,
+				Position:  pk.Position,
+				DropBook:  false,
+			})
+		}
 	}
 
 	return packets
 }
 
-func Downgrade(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
+func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := []gtpacket.Packet{}
-
-	switch pk := pk.(type) {
-	case *gtpacket.SetActorMotion:
-		packets = append(packets, &packet.SetActorMotion{
-			Velocity:        pk.Velocity,
-			EntityRuntimeID: pk.EntityRuntimeID,
-		})
-	case *gtpacket.ResourcePacksInfo:
-		packets = append(packets, &packet.ResourcePacksInfo{
-			TexturePackRequired: pk.TexturePackRequired,
-			HasScripts:          pk.HasScripts,
-			BehaviourPacks:      pk.BehaviourPacks,
-			TexturePacks:        pk.TexturePacks,
-			ForcingServerPacks:  pk.ForcingServerPacks,
-			PackURLs:            pk.PackURLs,
-		})
-	case *gtpacket.MobEffect:
-		packets = append(packets, &packet.MobEffect{
-			EntityRuntimeID: pk.EntityRuntimeID,
-			Operation:       pk.Operation,
-			EffectType:      pk.EffectType,
-			Amplifier:       pk.Amplifier,
-			Particles:       pk.Particles,
-			Duration:        pk.Duration,
-		})
+	for _, pk := range pks {
+		switch pk := pk.(type) {
+		case *gtpacket.SetActorMotion:
+			packets = append(packets, &packet.SetActorMotion{
+				Velocity:        pk.Velocity,
+				EntityRuntimeID: pk.EntityRuntimeID,
+			})
+		case *gtpacket.ResourcePacksInfo:
+			packets = append(packets, &packet.ResourcePacksInfo{
+				TexturePackRequired: pk.TexturePackRequired,
+				HasScripts:          pk.HasScripts,
+				BehaviourPacks:      pk.BehaviourPacks,
+				TexturePacks:        pk.TexturePacks,
+				ForcingServerPacks:  pk.ForcingServerPacks,
+				PackURLs:            pk.PackURLs,
+			})
+		case *gtpacket.MobEffect:
+			packets = append(packets, &packet.MobEffect{
+				EntityRuntimeID: pk.EntityRuntimeID,
+				Operation:       pk.Operation,
+				EffectType:      pk.EffectType,
+				Amplifier:       pk.Amplifier,
+				Particles:       pk.Particles,
+				Duration:        pk.Duration,
+			})
+		}
 	}
 
 	return packets

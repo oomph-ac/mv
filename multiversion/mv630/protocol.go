@@ -2,6 +2,7 @@ package mv630
 
 import (
 	"github.com/oomph-ac/mv/multiversion/mv630/packet"
+	"github.com/oomph-ac/mv/multiversion/mv649"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -52,6 +53,10 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
+		if downgraded == nil {
+			return []gtpacket.Packet{}
+		}
+
 		return Downgrade([]gtpacket.Packet{downgraded}, conn)
 	}
 
@@ -59,7 +64,7 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 }
 
 func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
+	packets := mv649.Upgrade(pks, conn)
 	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *packet.PlayerAuthInput:
@@ -101,7 +106,7 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
+	packets := mv649.Downgrade(pks, conn)
 	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *gtpacket.LevelChunk:
