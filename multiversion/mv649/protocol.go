@@ -107,26 +107,51 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 			for _, c := range pk.Commands {
 				for _, o := range c.Overloads {
 					for _, p := range o.Parameters {
-						switch p.Type {
-						case protocol.CommandArgTypeEquipmentSlots:
-							p.Type = packet.CommandArgTypeEquipmentSlots
-						case protocol.CommandArgTypeString:
-							p.Type = packet.CommandArgTypeString
-						case protocol.CommandArgTypeBlockPosition:
-							p.Type = packet.CommandArgTypeBlockPosition
-						case protocol.CommandArgTypePosition:
-							p.Type = packet.CommandArgTypePosition
-						case protocol.CommandArgTypeMessage:
-							p.Type = packet.CommandArgTypeMessage
-						case protocol.CommandArgTypeRawText:
-							p.Type = packet.CommandArgTypeRawText
-						case protocol.CommandArgTypeJSON:
-							p.Type = packet.CommandArgTypeJSON
-						case protocol.CommandArgTypeBlockStates:
-							p.Type = packet.CommandArgTypeBlockStates
-						case protocol.CommandArgTypeCommand:
-							p.Type = packet.CommandArgTypeCommand
+						var newT uint32 = 0
+						// check if p.type has the arg type, and add it to newT
+						if p.Type&protocol.CommandArgValid != 0 {
+							newT |= protocol.CommandArgValid
 						}
+						if p.Type&protocol.CommandArgEnum != 0 {
+							newT |= protocol.CommandArgEnum
+						}
+						if p.Type&protocol.CommandArgSuffixed != 0 {
+							newT |= protocol.CommandArgSuffixed
+						}
+						if p.Type&protocol.CommandArgSoftEnum != 0 {
+							newT |= protocol.CommandArgSoftEnum
+						}
+
+						// Downgrade arg types.
+						if p.Type&protocol.CommandArgTypeEquipmentSlots != 0 {
+							newT |= packet.CommandArgTypeEquipmentSlots
+						}
+						if p.Type&protocol.CommandArgTypeString != 0 {
+							newT |= packet.CommandArgTypeString
+						}
+						if p.Type&protocol.CommandArgTypeBlockPosition != 0 {
+							newT |= packet.CommandArgTypeBlockPosition
+						}
+						if p.Type&protocol.CommandArgTypePosition != 0 {
+							newT |= packet.CommandArgTypePosition
+						}
+						if p.Type&protocol.CommandArgTypeMessage != 0 {
+							newT |= packet.CommandArgTypeMessage
+						}
+						if p.Type&protocol.CommandArgTypeRawText != 0 {
+							newT |= packet.CommandArgTypeRawText
+						}
+						if p.Type&protocol.CommandArgTypeJSON != 0 {
+							newT |= packet.CommandArgTypeJSON
+						}
+						if p.Type&protocol.CommandArgTypeBlockStates != 0 {
+							newT |= packet.CommandArgTypeBlockStates
+						}
+						if p.Type&protocol.CommandArgTypeCommand != 0 {
+							newT |= packet.CommandArgTypeCommand
+						}
+
+						p.Type = newT
 					}
 				}
 			}
