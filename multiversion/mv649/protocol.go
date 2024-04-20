@@ -108,47 +108,13 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				for _, o := range c.Overloads {
 					for _, p := range o.Parameters {
 						var newT uint32 = 0
-						// check if p.type has the arg type, and add it to newT
-						if p.Type&protocol.CommandArgValid != 0 {
-							newT |= protocol.CommandArgValid
-						}
-						if p.Type&protocol.CommandArgEnum != 0 {
-							newT |= protocol.CommandArgEnum
-						}
-						if p.Type&protocol.CommandArgSuffixed != 0 {
-							newT |= protocol.CommandArgSuffixed
-						}
-						if p.Type&protocol.CommandArgSoftEnum != 0 {
-							newT |= protocol.CommandArgSoftEnum
-						}
+						newT |= protocol.CommandArgValid
 
-						// Downgrade arg types.
-						if p.Type&protocol.CommandArgTypeEquipmentSlots != 0 {
-							newT |= packet.CommandArgTypeEquipmentSlots
-						}
-						if p.Type&protocol.CommandArgTypeString != 0 {
-							newT |= packet.CommandArgTypeString
-						}
-						if p.Type&protocol.CommandArgTypeBlockPosition != 0 {
-							newT |= packet.CommandArgTypeBlockPosition
-						}
-						if p.Type&protocol.CommandArgTypePosition != 0 {
-							newT |= packet.CommandArgTypePosition
-						}
-						if p.Type&protocol.CommandArgTypeMessage != 0 {
-							newT |= packet.CommandArgTypeMessage
-						}
-						if p.Type&protocol.CommandArgTypeRawText != 0 {
-							newT |= packet.CommandArgTypeRawText
-						}
-						if p.Type&protocol.CommandArgTypeJSON != 0 {
-							newT |= packet.CommandArgTypeJSON
-						}
-						if p.Type&protocol.CommandArgTypeBlockStates != 0 {
-							newT |= packet.CommandArgTypeBlockStates
-						}
-						if p.Type&protocol.CommandArgTypeCommand != 0 {
-							newT |= packet.CommandArgTypeCommand
+						// If the enum is NOT dynmaic.
+						if p.Type&(protocol.CommandArgEnum|c.AliasesOffset) != 0 {
+							newT |= protocol.CommandArgEnum | c.AliasesOffset
+						} else {
+							newT |= protocol.CommandArgSoftEnum | c.AliasesOffset
 						}
 
 						p.Type = newT
