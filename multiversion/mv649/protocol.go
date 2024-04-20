@@ -107,7 +107,29 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 			for _, c := range pk.Commands {
 				for _, o := range c.Overloads {
 					for _, p := range o.Parameters {
-						var newT uint32 = 0
+						var newT uint32
+						switch p.Type {
+						case protocol.CommandArgTypeEquipmentSlots:
+							newT = packet.CommandArgTypeEquipmentSlots
+						case protocol.CommandArgTypeString:
+							newT = packet.CommandArgTypeString
+						case protocol.CommandArgTypeBlockPosition:
+							newT = packet.CommandArgTypeBlockPosition
+						case protocol.CommandArgTypePosition:
+							newT = packet.CommandArgTypePosition
+						case protocol.CommandArgTypeMessage:
+							newT = packet.CommandArgTypeMessage
+						case protocol.CommandArgTypeRawText:
+							newT = packet.CommandArgTypeRawText
+						case protocol.CommandArgTypeJSON:
+							newT = packet.CommandArgTypeJSON
+						case protocol.CommandArgTypeBlockStates:
+							newT = packet.CommandArgTypeBlockStates
+						case protocol.CommandArgTypeCommand:
+							newT = packet.CommandArgTypeCommand
+						default:
+							newT = p.Type
+						}
 						newT |= protocol.CommandArgValid
 
 						// If the enum is NOT dynmaic.
