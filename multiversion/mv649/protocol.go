@@ -104,46 +104,63 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *gtpacket.AvailableCommands:
+			// HACK!!! Why??!?!?! because GOLANG doesn't like it when i just replace p.Type :////
+			cmds := make([]protocol.Command, 0, len(pk.Commands))
 			for _, c := range pk.Commands {
+				cmd := protocol.Command{}
+				cmd.Name = c.Name
+				cmd.Description = c.Description
+				cmd.Flags = c.Flags
+				cmd.PermissionLevel = c.PermissionLevel
+				cmd.AliasesOffset = c.AliasesOffset
+				cmd.ChainedSubcommandOffsets = c.ChainedSubcommandOffsets
+				cmd.Overloads = make([]protocol.CommandOverload, 0, len(c.Overloads))
+
 				for _, o := range c.Overloads {
+					overload := protocol.CommandOverload{}
+					overload.Chaining = o.Chaining
+					overload.Parameters = make([]protocol.CommandParameter, 0, len(o.Parameters))
+
 					for _, p := range o.Parameters {
-						var newT uint32
-						switch p.Type {
-						case protocol.CommandArgTypeEquipmentSlots:
-							newT = packet.CommandArgTypeEquipmentSlots
-						case protocol.CommandArgTypeString:
-							newT = packet.CommandArgTypeString
-						case protocol.CommandArgTypeBlockPosition:
-							newT = packet.CommandArgTypeBlockPosition
-						case protocol.CommandArgTypePosition:
-							newT = packet.CommandArgTypePosition
-						case protocol.CommandArgTypeMessage:
-							newT = packet.CommandArgTypeMessage
-						case protocol.CommandArgTypeRawText:
-							newT = packet.CommandArgTypeRawText
-						case protocol.CommandArgTypeJSON:
-							newT = packet.CommandArgTypeJSON
-						case protocol.CommandArgTypeBlockStates:
-							newT = packet.CommandArgTypeBlockStates
-						case protocol.CommandArgTypeCommand:
-							newT = packet.CommandArgTypeCommand
-						default:
-							newT = p.Type
-						}
-						newT |= protocol.CommandArgValid
+						param := protocol.CommandParameter{}
+						param.Name = p.Name
+						param.Optional = p.Optional
+						param.Options = p.Options
 
-						// If the enum is NOT dynmaic.
-						if p.Type&(protocol.CommandArgEnum|c.AliasesOffset) != 0 {
-							newT |= protocol.CommandArgEnum | c.AliasesOffset
+						var newT uint32 = protocol.CommandArgValid
+						if p.Type == (protocol.CommandArgTypeEquipmentSlots | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeEquipmentSlots
+						} else if p.Type == (protocol.CommandArgTypeString | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeString
+						} else if p.Type == (protocol.CommandArgTypeBlockPosition | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeBlockPosition
+						} else if p.Type == (protocol.CommandArgTypePosition | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypePosition
+						} else if p.Type == (protocol.CommandArgTypeMessage | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeMessage
+						} else if p.Type == (protocol.CommandArgTypeRawText | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeRawText
+						} else if p.Type == (protocol.CommandArgTypeJSON | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeJSON
+						} else if p.Type == (protocol.CommandArgTypeBlockStates | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeBlockStates
+						} else if p.Type == (protocol.CommandArgTypeCommand | protocol.CommandArgValid) {
+							newT |= packet.CommandArgTypeCommand
 						} else {
-							newT |= protocol.CommandArgSoftEnum | c.AliasesOffset
+							// We don't need to downgrade these.
+							continue
 						}
 
-						p.Type = newT
+						param.Type = newT
+						overload.Parameters = append(overload.Parameters, param)
 					}
-				}
-			}
 
+					cmd.Overloads = append(cmd.Overloads, overload)
+				}
+
+				cmds = append(cmds, cmd)
+			}
+			pk.Commands = cmds
 			packets = append(packets, pk)
 		case *gtpacket.SetActorMotion:
 			packets = append(packets, &packet.SetActorMotion{
