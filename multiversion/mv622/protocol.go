@@ -64,7 +64,7 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
+	packets := make([]gtpacket.Packet, 0, len(pks))
 	for _, pk := range mv630.Downgrade(pks, conn) {
 		switch pk := pk.(type) {
 		case *gtpacket.ShowStoreOffer:
@@ -74,6 +74,7 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 			})
 		case *gtpacket.SetPlayerInventoryOptions, *gtpacket.PlayerToggleCrafterSlotRequest:
 			// These packets are not supported in 1.20.40, so we just ignore them.
+			continue
 		default:
 			packets = append(packets, pk)
 		}

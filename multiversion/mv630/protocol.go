@@ -60,8 +60,8 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 }
 
 func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := mv649.Upgrade(pks, conn)
-	for _, pk := range pks {
+	packets := make([]gtpacket.Packet, 0, len(pks))
+	for _, pk := range mv649.Upgrade(pks, conn) {
 		switch pk := pk.(type) {
 		case *packet.PlayerAuthInput:
 			packets = append(packets, &gtpacket.PlayerAuthInput{
@@ -102,8 +102,8 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := mv649.Downgrade(pks, conn)
-	for _, pk := range pks {
+	packets := make([]gtpacket.Packet, 0, len(pks))
+	for _, pk := range mv649.Downgrade(pks, conn) {
 		switch pk := pk.(type) {
 		case *gtpacket.LevelChunk:
 			packets = append(packets, &packet.LevelChunk{
