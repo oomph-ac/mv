@@ -240,7 +240,7 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				}
 			}
 
-			packets = append(packets, &gtpacket.CraftingData{
+			packets = append(packets, &packet.CraftingData{
 				Recipes:                      recipies,
 				PotionRecipes:                pk.PotionRecipes,
 				PotionContainerChangeRecipes: pk.PotionContainerChangeRecipes,
