@@ -6,6 +6,7 @@ import (
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
+
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 

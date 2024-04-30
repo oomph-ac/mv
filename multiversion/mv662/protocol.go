@@ -1,40 +1,36 @@
-package mv594
+package mv662
 
 import (
-	"github.com/oomph-ac/mv/multiversion/mv594/packet"
-	"github.com/oomph-ac/mv/multiversion/mv618"
+	"github.com/oomph-ac/mv/multiversion/mv662/packet"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
-
-	v649packet "github.com/oomph-ac/mv/multiversion/mv649/packet"
-	v662packet "github.com/oomph-ac/mv/multiversion/mv662/packet"
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
 type Protocol struct{}
 
 func (Protocol) ID() int32 {
-	return 594
+	return 662
 }
 
 func (Protocol) Ver() string {
-	return "1.20.10"
+	return "1.20.70"
 }
 
 func (Protocol) NewReader(r minecraft.ByteReader, shieldID int32, enableLimits bool) protocol.IO {
 	return protocol.NewReader(r, shieldID, enableLimits)
 }
 
-func (Protocol) NewWriter(w minecraft.ByteWriter, shieldID int32) protocol.IO {
-	return protocol.NewWriter(w, shieldID)
+func (Protocol) NewWriter(r minecraft.ByteWriter, shieldID int32) protocol.IO {
+	return protocol.NewWriter(r, shieldID)
 }
 
 func (Protocol) Packets(listener bool) gtpacket.Pool {
 	if listener {
-		return packet.NewServerPool()
+		return packet.NewClientPool()
 	}
-	return packet.NewClientPool()
+	return packet.NewServerPool()
 }
 
 func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
@@ -42,12 +38,12 @@ func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
 }
 
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	if updated, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
-		if updated == nil {
+	if upgraded, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
+		if upgraded == nil {
 			return []gtpacket.Packet{}
 		}
 
-		return Upgrade([]gtpacket.Packet{updated}, conn)
+		return Upgrade([]gtpacket.Packet{upgraded}, conn)
 	}
 
 	return Upgrade([]gtpacket.Packet{pk}, conn)
@@ -62,14 +58,53 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 }
 
 func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	return mv618.Upgrade(pks, conn)
+	packets := []gtpacket.Packet{}
+	for _, pk := range pks {
+		switch pk := pk.(type) {
+		case *packet.PlayerAuthInput:
+			packets = append(packets, &gtpacket.PlayerAuthInput{
+				Pitch:                  pk.Pitch,
+				Yaw:                    pk.Yaw,
+				Position:               pk.Position,
+				MoveVector:             pk.MoveVector,
+				HeadYaw:                pk.HeadYaw,
+				InputData:              pk.InputData,
+				InputMode:              pk.InputMode,
+				PlayMode:               pk.PlayMode,
+				InteractionModel:       uint32(pk.InteractionModel),
+				GazeDirection:          pk.GazeDirection,
+				Tick:                   pk.Tick,
+				Delta:                  pk.Delta,
+				ItemInteractionData:    pk.ItemInteractionData,
+				ItemStackRequest:       pk.ItemStackRequest,
+				BlockActions:           pk.BlockActions,
+				VehicleRotation:        pk.VehicleRotation,
+				ClientPredictedVehicle: pk.ClientPredictedVehicle,
+				AnalogueMoveVector:     pk.AnalogueMoveVector,
+			})
+		default:
+			packets = append(packets, pk)
+		}
+	}
+
+	return packets
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
-	for _, pk := range mv618.Downgrade(pks, conn) {
+	packets := make([]gtpacket.Packet, 0, len(pks))
+
+	for _, pk := range pks {
 		switch pk := pk.(type) {
-		case *v662packet.StartGame:
+		case *gtpacket.ResourcePackStack:
+			packets = append(packets, &packet.ResourcePackStack{
+				TexturePackRequired:          pk.TexturePackRequired,
+				BehaviourPacks:               pk.BehaviourPacks,
+				TexturePacks:                 pk.TexturePacks,
+				BaseGameVersion:              pk.BaseGameVersion,
+				Experiments:                  pk.Experiments,
+				ExperimentsPreviouslyToggled: pk.ExperimentsPreviouslyToggled,
+			})
+		case *gtpacket.StartGame:
 			packets = append(packets, &packet.StartGame{
 				EntityUniqueID:                 pk.EntityUniqueID,
 				EntityRuntimeID:                pk.EntityRuntimeID,
@@ -86,7 +121,7 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				Difficulty:                     pk.Difficulty,
 				WorldSpawn:                     pk.WorldSpawn,
 				AchievementsDisabled:           pk.AchievementsDisabled,
-				EditorWorld:                    pk.EditorWorldType != gtpacket.EditorWorldTypeNotEditor,
+				EditorWorldType:                pk.EditorWorldType,
 				CreatedInEditor:                pk.CreatedInEditor,
 				ExportedFromEditor:             pk.ExportedFromEditor,
 				DayCycleLockTime:               pk.DayCycleLockTime,
@@ -124,7 +159,6 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				LimitedWorldDepth:              pk.LimitedWorldDepth,
 				NewNether:                      pk.NewNether,
 				EducationSharedResourceURI:     pk.EducationSharedResourceURI,
-				ForceExperimentalGameplay:      pk.ForceExperimentalGameplay,
 				LevelID:                        pk.LevelID,
 				WorldName:                      pk.WorldName,
 				TemplateContentIdentity:        pk.TemplateContentIdentity,
@@ -146,13 +180,72 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				UseBlockNetworkIDHashes:        pk.UseBlockNetworkIDHashes,
 				ServerAuthoritativeSound:       pk.ServerAuthoritativeSound,
 			})
-		case *v649packet.ResourcePacksInfo:
-			packets = append(packets, &packet.ResourcePacksInfo{
-				TexturePackRequired: pk.TexturePackRequired,
-				HasScripts:          pk.HasScripts,
-				BehaviourPacks:      pk.BehaviourPacks,
-				TexturePacks:        pk.TexturePacks,
-				ForcingServerPacks:  pk.ForcingServerPacks,
+		case *gtpacket.UpdateBlockSynced:
+			packets = append(packets, &packet.UpdateBlockSynced{
+				Position:          pk.Position,
+				NewBlockRuntimeID: pk.NewBlockRuntimeID,
+				Flags:             pk.Flags,
+				Layer:             pk.Layer,
+				EntityUniqueID:    int64(pk.EntityUniqueID),
+				TransitionType:    pk.TransitionType,
+			})
+		case *gtpacket.UpdatePlayerGameType:
+			packets = append(packets, &packet.UpdatePlayerGameType{
+				GameType:       pk.GameType,
+				PlayerUniqueID: pk.PlayerUniqueID,
+			})
+		case *gtpacket.ClientBoundDebugRenderer:
+			packets = append(packets, &packet.ClientBoundDebugRenderer{
+				Type:     pk.Type,
+				Text:     pk.Text,
+				Position: pk.Position,
+				Red:      pk.Red,
+				Green:    pk.Green,
+				Blue:     pk.Blue,
+				Alpha:    pk.Alpha,
+				Duration: pk.Duration,
+			})
+		case *gtpacket.CraftingData:
+			recipies := make([]protocol.Recipe, 0, len(pk.Recipes))
+			for _, r := range pk.Recipes {
+				switch r := r.(type) {
+				case *protocol.ShapedRecipe:
+					recipies = append(recipies, &packet.ShapedRecipe{
+						RecipeID:        r.RecipeID,
+						Width:           r.Width,
+						Height:          r.Height,
+						Input:           r.Input,
+						Output:          r.Output,
+						UUID:            r.UUID,
+						Block:           r.Block,
+						Priority:        r.Priority,
+						RecipeNetworkID: r.RecipeNetworkID,
+					})
+				case *protocol.ShapedChemistryRecipe:
+					recipies = append(recipies, &packet.ShapedChemistryRecipe{
+						ShapedRecipe: packet.ShapedRecipe{
+							RecipeID:        r.RecipeID,
+							Width:           r.Width,
+							Height:          r.Height,
+							Input:           r.Input,
+							Output:          r.Output,
+							UUID:            r.UUID,
+							Block:           r.Block,
+							Priority:        r.Priority,
+							RecipeNetworkID: r.RecipeNetworkID,
+						},
+					})
+				default:
+					recipies = append(recipies, r)
+				}
+			}
+
+			packets = append(packets, &gtpacket.CraftingData{
+				Recipes:                      recipies,
+				PotionRecipes:                pk.PotionRecipes,
+				PotionContainerChangeRecipes: pk.PotionContainerChangeRecipes,
+				MaterialReducers:             pk.MaterialReducers,
+				ClearRecipes:                 pk.ClearRecipes,
 			})
 		default:
 			packets = append(packets, pk)

@@ -7,6 +7,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 
+	v649packet "github.com/oomph-ac/mv/multiversion/mv649/packet"
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
@@ -61,10 +62,10 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 
 func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	packets := make([]gtpacket.Packet, 0, len(pks))
-	for _, pk := range mv649.Upgrade(pks, conn) {
+	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *packet.PlayerAuthInput:
-			packets = append(packets, &gtpacket.PlayerAuthInput{
+			packets = append(packets, &v649packet.PlayerAuthInput{
 				Pitch:                  pk.Pitch,
 				Yaw:                    pk.Yaw,
 				Position:               pk.Position,
@@ -83,22 +84,12 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				AnalogueMoveVector:     pk.AnalogueMoveVector,
 				ClientPredictedVehicle: 0,
 			})
-		case *packet.LevelChunk:
-			packets = append(packets, &gtpacket.LevelChunk{
-				Position:        pk.Position,
-				HighestSubChunk: pk.HighestSubChunk,
-				SubChunkCount:   pk.SubChunkCount,
-				CacheEnabled:    pk.CacheEnabled,
-				BlobHashes:      pk.BlobHashes,
-				RawPayload:      pk.RawPayload,
-			})
 		default:
 			packets = append(packets, pk)
 		}
 	}
 
-	pks = nil
-	return packets
+	return mv649.Upgrade(packets, conn)
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
@@ -113,25 +104,6 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				CacheEnabled:    pk.CacheEnabled,
 				BlobHashes:      pk.BlobHashes,
 				RawPayload:      pk.RawPayload,
-			})
-		case *gtpacket.PlayerAuthInput:
-			packets = append(packets, &packet.PlayerAuthInput{
-				Pitch:               pk.Pitch,
-				Yaw:                 pk.Yaw,
-				Position:            pk.Position,
-				MoveVector:          pk.MoveVector,
-				HeadYaw:             pk.HeadYaw,
-				InputData:           pk.InputData,
-				InputMode:           pk.InputMode,
-				PlayMode:            pk.PlayMode,
-				InteractionModel:    pk.InteractionModel,
-				GazeDirection:       pk.GazeDirection,
-				Tick:                pk.Tick,
-				Delta:               pk.Delta,
-				ItemInteractionData: pk.ItemInteractionData,
-				ItemStackRequest:    pk.ItemStackRequest,
-				BlockActions:        pk.BlockActions,
-				AnalogueMoveVector:  pk.AnalogueMoveVector,
 			})
 		case *gtpacket.PlayerList:
 			packets = append(packets, &packet.PlayerList{

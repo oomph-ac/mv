@@ -113,6 +113,77 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 		pk.Boots.Stack = UpgradeItem(pk.Boots.Stack, mapping)
 	case *packet.MobEquipment:
 		pk.NewItem.Stack = UpgradeItem(pk.NewItem.Stack, mapping)
+	case *packet.LevelChunk:
+		if pk.SubChunkCount == protocol.SubChunkRequestModeLimited || pk.SubChunkCount == protocol.SubChunkRequestModeLimitless {
+			return pk, true
+		}
+
+		r := world.Overworld.Range()
+		buff := bytes.NewBuffer(pk.RawPayload)
+		c, err := chunk.NetworkDecode(mapping.LegacyAirRID, buff, int(pk.SubChunkCount), conn.GameData().BaseGameVersion == "1.17.40", r)
+		if err != nil {
+			fmt.Println(err)
+			return pk, true
+		}
+
+		upgraded := chunk.New(LatestAirRID, r)
+		for subInd, sub := range c.Sub() {
+			for layerInd, layer := range sub.Layers() {
+				upgradedLayer := upgraded.Sub()[subInd].Layer(uint8(layerInd))
+				for x := uint8(0); x < 16; x++ {
+					for z := uint8(0); z < 16; z++ {
+						for y := uint8(0); y < 16; y++ {
+							legacyRuntimeID := layer.At(x, y, z)
+							upgradedLayer.Set(x, y, z, UpgradeBlockRuntimeID(uint32(legacyRuntimeID), mapping))
+						}
+					}
+				}
+			}
+		}
+		for x := uint8(0); x < 16; x++ {
+			for z := uint8(0); z < 16; z++ {
+				y := c.HighestBlock(x, z)
+				upgraded.SetBiome(x, y, z, c.Biome(x, y, z))
+			}
+		}
+
+		data := chunk.Encode(upgraded, chunk.NetworkEncoding, r)
+		chunkBuf := bytes.NewBuffer(nil)
+		for i := range data.SubChunks {
+			chunkBuf.Write(data.SubChunks[i])
+		}
+		chunkBuf.Write(data.Biomes)
+
+		pk.SubChunkCount = uint32(len(data.SubChunks))
+		pk.RawPayload = append(chunkBuf.Bytes(), buff.Bytes()...)
+	case *packet.SubChunk:
+		for i, entry := range pk.SubChunkEntries {
+			if entry.Result == protocol.SubChunkResultSuccess && !pk.CacheEnabled {
+				buff := bytes.NewBuffer(entry.RawPayload)
+				var index byte = 0
+				subChunk, err := chunk.DecodeSubChunk(mapping.LegacyAirRID, world.Overworld.Range(), buff, &index, chunk.NetworkEncoding)
+				if err != nil {
+					fmt.Println(err)
+					return pk, true
+				}
+
+				upgraded := chunk.NewSubChunk(LatestAirRID)
+				for layerInd, layer := range subChunk.Layers() {
+					upgradedLayer := upgraded.Layer(uint8(layerInd))
+					for x := uint8(0); x < 16; x++ {
+						for z := uint8(0); z < 16; z++ {
+							for y := uint8(0); y < 16; y++ {
+								legacyRuntimeID := layer.At(x, y, z)
+								upgradedLayer.Set(x, y, z, UpgradeBlockRuntimeID(uint32(legacyRuntimeID), mapping))
+							}
+						}
+					}
+				}
+				ind := int16(pk.Position.Y()) + int16(entry.Offset[1]) - int16(world.Overworld.Range()[0])>>4
+				serialised := chunk.EncodeSubChunk(upgraded, chunk.NetworkEncoding, world.Overworld.Range(), int(ind))
+				pk.SubChunkEntries[i].RawPayload = append(serialised, buff.Bytes()...)
+			}
+		}
 	default:
 		if pk.ID() == 53 {
 			return nil, true

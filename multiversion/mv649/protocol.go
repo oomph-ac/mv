@@ -6,6 +6,8 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 
 	"github.com/oomph-ac/mv/multiversion/mv649/packet"
+	"github.com/oomph-ac/mv/multiversion/mv662"
+	v662packet "github.com/oomph-ac/mv/multiversion/mv662/packet"
 	"github.com/oomph-ac/mv/multiversion/util"
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
@@ -60,11 +62,11 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 }
 
 func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
+	packets := make([]gtpacket.Packet, 0, len(pks))
 	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *packet.PlayerAuthInput:
-			packets = append(packets, &gtpacket.PlayerAuthInput{
+			packets = append(packets, &v662packet.PlayerAuthInput{
 				Pitch:                  pk.Pitch,
 				Yaw:                    pk.Yaw,
 				Position:               pk.Position,
@@ -84,24 +86,25 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				AnalogueMoveVector:     pk.AnalogueMoveVector,
 				VehicleRotation:        mgl32.Vec2{},
 			})
-		case *gtpacket.LecternUpdate:
-			packets = append(packets, &packet.LecternUpdate{
+		case *packet.LecternUpdate:
+			packets = append(packets, &gtpacket.LecternUpdate{
 				Page:      pk.Page,
 				PageCount: pk.PageCount,
 				Position:  pk.Position,
-				DropBook:  false,
 			})
 		default:
 			packets = append(packets, pk)
 		}
 	}
 
-	return packets
+	return mv662.Upgrade(packets, conn)
 }
 
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
-	for _, pk := range pks {
+	downgraded := mv662.Downgrade(pks, conn)
+	packets := make([]gtpacket.Packet, 0, len(downgraded))
+
+	for _, pk := range downgraded {
 		switch pk := pk.(type) {
 		case *gtpacket.AvailableCommands:
 			// HACK!!! Why??!?!?! because GOLANG doesn't like it when i just replace p.Type :////
