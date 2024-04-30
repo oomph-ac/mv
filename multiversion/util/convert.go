@@ -184,6 +184,17 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 				pk.SubChunkEntries[i].RawPayload = append(serialised, buff.Bytes()...)
 			}
 		}
+	case *packet.UpdateBlock:
+		pk.NewBlockRuntimeID = UpgradeBlockRuntimeID(uint32(pk.NewBlockRuntimeID), mapping)
+	case *packet.UpdateBlockSynced:
+		pk.NewBlockRuntimeID = UpgradeBlockRuntimeID(uint32(pk.NewBlockRuntimeID), mapping)
+	case *packet.UpdateSubChunkBlocks:
+		for i, block := range pk.Blocks {
+			pk.Blocks[i].BlockRuntimeID = UpgradeBlockRuntimeID(uint32(block.BlockRuntimeID), mapping)
+		}
+		for i, block := range pk.Extra {
+			pk.Blocks[i].BlockRuntimeID = UpgradeBlockRuntimeID(uint32(block.BlockRuntimeID), mapping)
+		}
 	default:
 		if pk.ID() == 53 {
 			return nil, true
