@@ -5,7 +5,7 @@ go 1.21.0
 toolchain go1.22.2
 
 require (
-	github.com/df-mc/dragonfly v0.9.15
+	github.com/df-mc/dragonfly v0.9.16-0.20240429014602-97fdfe269e3c
 	github.com/df-mc/worldupgrader v1.0.14
 	github.com/go-gl/mathgl v1.1.0
 	github.com/google/uuid v1.6.0
