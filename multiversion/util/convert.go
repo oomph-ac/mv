@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/oomph-ac/mv/multiversion/chunk"
@@ -20,6 +21,7 @@ var LatestAirRID, _ = latest.StateToRuntimeID("minecraft:air", nil)
 // downgraded successfully.
 func DowngradeItem(input protocol.ItemStack, mappings mappings.MVMapping) protocol.ItemStack {
 	name, _ := latest.ItemRuntimeIDToName(input.NetworkID)
+	name = strings.ReplaceAll("_block", "", name)
 	networkID, _ := mappings.ItemIDByName(name)
 	input.ItemType.NetworkID = networkID
 	if input.BlockRuntimeID > 0 {
