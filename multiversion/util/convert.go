@@ -2,8 +2,6 @@ package util
 
 import (
 	"bytes"
-	"fmt"
-	"strings"
 
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/oomph-ac/mv/multiversion/chunk"
@@ -12,6 +10,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
+	"github.com/sirupsen/logrus"
 )
 
 // LatestAirRID is the runtime ID of the air block in the latest version of the game.
@@ -21,7 +20,6 @@ var LatestAirRID, _ = latest.StateToRuntimeID("minecraft:air", nil)
 // downgraded successfully.
 func DowngradeItem(input protocol.ItemStack, mappings mappings.MVMapping) protocol.ItemStack {
 	name, _ := latest.ItemRuntimeIDToName(input.NetworkID)
-	name = strings.ReplaceAll("_block", "", name)
 	networkID, _ := mappings.ItemIDByName(name)
 	input.ItemType.NetworkID = networkID
 	if input.BlockRuntimeID > 0 {
@@ -124,7 +122,7 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 		buff := bytes.NewBuffer(pk.RawPayload)
 		c, err := chunk.NetworkDecode(mapping.LegacyAirRID, buff, int(pk.SubChunkCount), conn.GameData().BaseGameVersion == "1.17.40", r)
 		if err != nil {
-			fmt.Println(err)
+			logrus.Error(err)
 			return pk, true
 		}
 
@@ -165,7 +163,7 @@ func DefaultUpgrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.MVM
 				var index byte = 0
 				subChunk, err := chunk.DecodeSubChunk(mapping.LegacyAirRID, world.Overworld.Range(), buff, &index, chunk.NetworkEncoding)
 				if err != nil {
-					fmt.Println(err)
+					logrus.Error(err)
 					return pk, true
 				}
 
@@ -245,7 +243,7 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 		buff := bytes.NewBuffer(pk.RawPayload)
 		c, err := chunk.NetworkDecode(LatestAirRID, buff, int(pk.SubChunkCount), conn.GameData().BaseGameVersion == "1.17.40", r)
 		if err != nil {
-			fmt.Println(err)
+			logrus.Error(err)
 			return pk, true
 		}
 
@@ -286,7 +284,7 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 				var index byte = 0
 				subChunk, err := chunk.DecodeSubChunk(LatestAirRID, world.Overworld.Range(), buff, &index, chunk.NetworkEncoding)
 				if err != nil {
-					fmt.Println(err)
+					logrus.Error(err)
 					return pk, true
 				}
 
@@ -317,6 +315,25 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 		}
 		for i, block := range pk.Extra {
 			pk.Blocks[i].BlockRuntimeID = DowngradeBlockRuntimeID(block.BlockRuntimeID, mapping)
+		}
+	case *packet.StartGame:
+		for i, item := range pk.Items {
+			_, ok := mapping.ItemNameByID(int32(item.RuntimeID))
+			if ok {
+				continue
+			}
+
+			downgradedName, ok := mapping.ItemNameByID(int32(item.RuntimeID))
+			if !ok {
+				logrus.Errorf("downgrade: item %s with runtime ID %v not found", item.Name, item.RuntimeID)
+				continue
+			}
+
+			pk.Items[i] = protocol.ItemEntry{
+				Name:           downgradedName,
+				RuntimeID:      item.RuntimeID,
+				ComponentBased: item.ComponentBased,
+			}
 		}
 	default:
 		handled = false
