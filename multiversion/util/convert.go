@@ -317,24 +317,32 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 			pk.Blocks[i].BlockRuntimeID = DowngradeBlockRuntimeID(block.BlockRuntimeID, mapping)
 		}
 	case *packet.StartGame:
-		for i, item := range pk.Items {
-			_, ok := mapping.ItemNameByID(int32(item.RuntimeID))
-			if ok {
-				continue
-			}
-
-			downgradedName, ok := mapping.ItemNameByID(int32(item.RuntimeID))
+		items := make([]protocol.ItemEntry, 0, len(pk.Items))
+		for _, item := range pk.Items {
+			id, ok := latest.ItemNameToRuntimeID(item.Name)
 			if !ok {
-				logrus.Errorf("downgrade: item %s with runtime ID %v not found", item.Name, item.RuntimeID)
+				items = append(items, item)
+				logrus.Errorf("MV downgrade: item %s not found", item.Name)
 				continue
 			}
 
-			pk.Items[i] = protocol.ItemEntry{
-				Name:           downgradedName,
+			name, ok := mapping.ItemNameByID(id)
+			if !ok {
+				continue
+			}
+
+			if name != item.Name {
+				logrus.Infof("downgraded %s->%s", item.Name, name)
+			}
+
+			items = append(items, protocol.ItemEntry{
+				Name:           name,
 				RuntimeID:      item.RuntimeID,
 				ComponentBased: item.ComponentBased,
-			}
+			})
 		}
+
+		pk.Items = items
 	default:
 		handled = false
 	}
