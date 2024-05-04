@@ -3,6 +3,7 @@ package mv630
 import (
 	_ "embed"
 
+	"github.com/oomph-ac/mv/multiversion/latest"
 	"github.com/oomph-ac/mv/multiversion/mappings"
 )
 
@@ -16,5 +17,5 @@ var (
 )
 
 func init() {
-	Mapping = mappings.Mapping(blockStates, itemRuntimeIds, false)
+	Mapping = mappings.Mapping(blockStates, latest.ItemRuntimeIDData, false)
 }
