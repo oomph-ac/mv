@@ -20,7 +20,11 @@ var LatestAirRID, _ = latest.StateToRuntimeID("minecraft:air", nil)
 // downgraded successfully.
 func DowngradeItem(input protocol.ItemStack, mappings mappings.MVMapping) protocol.ItemStack {
 	name, _ := latest.ItemRuntimeIDToName(input.NetworkID)
-	networkID, _ := mappings.ItemIDByName(name)
+	networkID, ok := mappings.ItemIDByName(name)
+	if !ok {
+		return input
+	}
+
 	input.ItemType.NetworkID = networkID
 	if input.BlockRuntimeID > 0 {
 		input.BlockRuntimeID = int32(DowngradeBlockRuntimeID(uint32(input.BlockRuntimeID), mappings))
@@ -34,8 +38,13 @@ func UpgradeItem(input protocol.ItemStack, mappings mappings.MVMapping) protocol
 	if input.ItemType.NetworkID == 0 {
 		return protocol.ItemStack{}
 	}
+
 	name, _ := mappings.ItemNameByID(input.ItemType.NetworkID)
-	networkID, _ := latest.ItemNameToRuntimeID(name)
+	networkID, ok := latest.ItemNameToRuntimeID(name)
+	if !ok {
+		return input
+	}
+
 	input.ItemType.NetworkID = networkID
 	if input.BlockRuntimeID > 0 {
 		input.BlockRuntimeID = int32(UpgradeBlockRuntimeID(uint32(input.BlockRuntimeID), mappings))
@@ -316,6 +325,10 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 		for i, block := range pk.Extra {
 			pk.Blocks[i].BlockRuntimeID = DowngradeBlockRuntimeID(block.BlockRuntimeID, mapping)
 		}
+	case *packet.CraftingData: // TODO: Fix crafting later, this keeps crashing the client.
+		return &packet.CraftingData{
+			ClearRecipes: true,
+		}, true
 	case *packet.StartGame:
 		items := make([]protocol.ItemEntry, 0, len(pk.Items))
 		for _, item := range pk.Items {
@@ -328,11 +341,9 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 
 			name, ok := mapping.ItemNameByID(id)
 			if !ok {
+				logrus.Errorf("MV downgrade: item %s not found in non-latest mapping", item.Name)
+				items = append(items, item)
 				continue
-			}
-
-			if name != item.Name {
-				logrus.Infof("downgraded %s->%s", item.Name, name)
 			}
 
 			items = append(items, protocol.ItemEntry{
