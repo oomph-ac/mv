@@ -335,13 +335,11 @@ func DefaultDowngrade(conn *minecraft.Conn, pk packet.Packet, mapping mappings.M
 			id, ok := latest.ItemNameToRuntimeID(item.Name)
 			if !ok {
 				items = append(items, item)
-				logrus.Errorf("MV downgrade: item %s not found", item.Name)
 				continue
 			}
 
 			name, ok := mapping.ItemNameByID(id)
 			if !ok {
-				logrus.Errorf("MV downgrade: item %s not found in non-latest mapping", item.Name)
 				items = append(items, item)
 				continue
 			}
