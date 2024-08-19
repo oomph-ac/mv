@@ -5,42 +5,6 @@ import (
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
-const (
-	MobEffectAdd = iota + 1
-	MobEffectModify
-	MobEffectRemove
-)
-
-const (
-	EffectSpeed = iota + 1
-	EffectSlowness
-	EffectHaste
-	EffectMiningFatigue
-	EffectStrength
-	EffectInstantHealth
-	EffectInstantDamage
-	EffectJumpBoost
-	EffectNausea
-	EffectRegeneration
-	EffectResistance
-	EffectFireResistance
-	EffectWaterBreathing
-	EffectInvisibility
-	EffectBlindness
-	EffectNightVision
-	EffectHunger
-	EffectWeakness
-	EffectPoison
-	EffectWither
-	EffectHealthBoost
-	EffectAbsorption
-	EffectSaturation
-	EffectLevitation
-	EffectFatalPoison
-	EffectConduitPower
-	EffectSlowFalling
-)
-
 // MobEffect is sent by the server to apply an effect to the player, for example an effect like poison. It may
 // also be used to modify existing effects, or removing them completely.
 type MobEffect struct {

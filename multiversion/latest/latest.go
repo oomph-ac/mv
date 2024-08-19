@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 
-	"github.com/df-mc/dragonfly/server/world"
 	"github.com/df-mc/worldupgrader/blockupgrader"
 	"github.com/sandertv/gophertunnel/minecraft/nbt"
 )
@@ -51,12 +50,6 @@ func init() {
 		panic(err)
 	}
 	for name, rid := range m {
-		itemNamesToRuntimeIDs[name] = rid
-		itemRuntimeIDsToNames[rid] = name
-	}
-	for _, it := range world.CustomItems() {
-		name, _ := it.EncodeItem()
-		rid, _, _ := world.ItemRuntimeID(it)
 		itemNamesToRuntimeIDs[name] = rid
 		itemRuntimeIDsToNames[rid] = name
 	}

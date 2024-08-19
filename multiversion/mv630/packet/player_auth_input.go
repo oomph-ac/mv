@@ -6,6 +6,7 @@ import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
+//goland:noinspection GoUnusedConst
 const (
 	InputFlagAscend = 1 << iota
 	InputFlagDescend
@@ -55,6 +56,7 @@ const (
 	InputFlagClientPredictedVehicle
 )
 
+//goland:noinspection GoUnusedConst
 const (
 	InputModeMouse = iota + 1
 	InputModeTouch
@@ -62,6 +64,7 @@ const (
 	InputModeMotionController
 )
 
+//goland:noinspection GoUnusedConst
 const (
 	PlayModeNormal = iota
 	PlayModeTeaser
@@ -75,6 +78,7 @@ const (
 	PlayModeNumModes
 )
 
+//goland:noinspection GoUnusedConst
 const (
 	InteractionModelTouch = iota
 	InteractionModelCrosshair

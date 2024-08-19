@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/oomph-ac/mv/multiversion/latest"
 	"strings"
 
-	"github.com/oomph-ac/mv/multiversion/latest"
 	"github.com/sandertv/gophertunnel/minecraft/nbt"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 )

@@ -95,7 +95,7 @@ func (chunk *Chunk) HighestBlock(x, z uint8) int16 {
 // Compact should be called right before the chunk is saved in order to optimise the storage space.
 func (chunk *Chunk) Compact() {
 	for i := range chunk.sub {
-		chunk.sub[i].compact()
+		chunk.sub[i].Compact()
 	}
 }
 

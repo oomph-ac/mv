@@ -2,6 +2,7 @@ package packet
 
 import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
 // ResourcePackStack is sent by the server to send the order in which resource packs and behaviour packs
@@ -31,7 +32,7 @@ type ResourcePackStack struct {
 
 // ID ...
 func (*ResourcePackStack) ID() uint32 {
-	return IDResourcePackStack
+	return packet.IDResourcePackStack
 }
 
 func (pk *ResourcePackStack) Marshal(io protocol.IO) {

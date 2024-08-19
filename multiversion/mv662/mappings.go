@@ -16,5 +16,5 @@ var (
 )
 
 func init() {
-	Mapping = mappings.Mapping(blockStates, itemRuntimeIDs, false)
+	Mapping = mappings.Mapping(blockStates, itemRuntimeIDs)
 }

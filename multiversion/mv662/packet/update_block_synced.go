@@ -2,11 +2,7 @@ package packet
 
 import (
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
-)
-
-const (
-	BlockToEntityTransition = iota + 1
-	EntityToBlockTransition
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
 // UpdateBlockSynced is sent by the server to synchronise the falling of a falling block entity with the
@@ -37,7 +33,7 @@ type UpdateBlockSynced struct {
 
 // ID ...
 func (*UpdateBlockSynced) ID() uint32 {
-	return IDUpdateBlockSynced
+	return packet.IDUpdateBlockSynced
 }
 
 func (pk *UpdateBlockSynced) Marshal(io protocol.IO) {

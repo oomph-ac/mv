@@ -3,8 +3,10 @@ package packet
 import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
+//goland:noinspection GoUnusedConst
 const (
 	InputFlagAscend = 1 << iota
 	InputFlagDescend
@@ -134,7 +136,7 @@ type PlayerAuthInput struct {
 
 // ID ...
 func (pk *PlayerAuthInput) ID() uint32 {
-	return IDPlayerAuthInput
+	return packet.IDPlayerAuthInput
 }
 
 func (pk *PlayerAuthInput) Marshal(io protocol.IO) {

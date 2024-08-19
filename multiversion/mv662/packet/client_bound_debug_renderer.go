@@ -3,11 +3,7 @@ package packet
 import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
-)
-
-const (
-	ClientBoundDebugRendererClear uint32 = iota + 1
-	ClientBoundDebugRendererAddCube
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
 // ClientBoundDebugRenderer is sent by the server to spawn an outlined cube on client-side.
@@ -32,12 +28,12 @@ type ClientBoundDebugRenderer struct {
 
 // ID ...
 func (*ClientBoundDebugRenderer) ID() uint32 {
-	return IDClientBoundDebugRenderer
+	return packet.IDClientBoundDebugRenderer
 }
 
 func (pk *ClientBoundDebugRenderer) Marshal(io protocol.IO) {
 	io.Varuint32(&pk.Type)
-	if pk.Type == ClientBoundDebugRendererAddCube {
+	if pk.Type == packet.ClientBoundDebugRendererAddCube {
 		io.String(&pk.Text)
 		io.Vec3(&pk.Position)
 		io.Float32(&pk.Red)

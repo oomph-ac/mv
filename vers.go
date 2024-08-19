@@ -22,7 +22,7 @@ func (v *Vers) Listen(conf *server.Config, name string, protocols []minecraft.Pr
 	conf.Listeners = nil
 	conf.Listeners = append(conf.Listeners, func(_ server.Config) (server.Listener, error) {
 		l, err := minecraft.ListenConfig{
-			StatusProvider:       minecraft.NewStatusProvider(name),
+			StatusProvider:       minecraft.NewStatusProvider(name, "???"),
 			ResourcePacks:        conf.Resources,
 			TexturePacksRequired: requirePacks,
 			AcceptedProtocols:    protocols,

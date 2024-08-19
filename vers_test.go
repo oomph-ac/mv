@@ -2,12 +2,12 @@ package vers
 
 import (
 	"fmt"
+	"github.com/oomph-ac/mv/multiversion/mv630"
 	"os"
 	"testing"
 
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/player/chat"
-	"github.com/oomph-ac/mv/multiversion/mv618"
 	"github.com/pelletier/go-toml"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sirupsen/logrus"
@@ -28,7 +28,7 @@ func TestVers(t *testing.T) {
 
 	v := New(":6900")
 	v.Listen(&cfg, cfg.Name, []minecraft.Protocol{
-		mv618.Protocol{},
+		mv630.Protocol{},
 	}, false)
 
 	srv := cfg.New()

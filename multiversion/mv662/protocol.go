@@ -2,30 +2,38 @@ package mv662
 
 import (
 	"github.com/oomph-ac/mv/multiversion/mv662/packet"
+	"github.com/oomph-ac/mv/multiversion/mv671"
 	"github.com/oomph-ac/mv/multiversion/util"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
+// Protocol is a protocol implementation for
+// Minecraft: Bedrock Edition 1.20.70.
 type Protocol struct{}
 
+// ID ...
 func (Protocol) ID() int32 {
 	return 662
 }
 
+// Ver ...
 func (Protocol) Ver() string {
 	return "1.20.70"
 }
 
+// NewReader ...
 func (Protocol) NewReader(r minecraft.ByteReader, shieldID int32, enableLimits bool) protocol.IO {
 	return protocol.NewReader(r, shieldID, enableLimits)
 }
 
+// NewWriter ...
 func (Protocol) NewWriter(r minecraft.ByteWriter, shieldID int32) protocol.IO {
 	return protocol.NewWriter(r, shieldID)
 }
 
+// Packets ...
 func (Protocol) Packets(listener bool) gtpacket.Pool {
 	if listener {
 		return packet.NewClientPool()
@@ -33,10 +41,7 @@ func (Protocol) Packets(listener bool) gtpacket.Pool {
 	return packet.NewServerPool()
 }
 
-func (Protocol) Encryption(key [32]byte) gtpacket.Encryption {
-	return gtpacket.NewCTREncryption(key[:])
-}
-
+// ConvertToLatest ...
 func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if upgraded, ok := util.DefaultUpgrade(conn, pk, Mapping); ok {
 		if upgraded == nil {
@@ -49,6 +54,7 @@ func (Protocol) ConvertToLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpa
 	return Upgrade([]gtpacket.Packet{pk}, conn)
 }
 
+// ConvertFromLatest ...
 func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 	if downgraded, ok := util.DefaultDowngrade(conn, pk, Mapping); ok {
 		return Downgrade([]gtpacket.Packet{downgraded}, conn)
@@ -57,8 +63,9 @@ func (Protocol) ConvertFromLatest(pk gtpacket.Packet, conn *minecraft.Conn) []gt
 	return Downgrade([]gtpacket.Packet{pk}, conn)
 }
 
+// Upgrade ...
 func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := []gtpacket.Packet{}
+	var packets []gtpacket.Packet
 	for _, pk := range pks {
 		switch pk := pk.(type) {
 		case *packet.PlayerAuthInput:
@@ -87,13 +94,15 @@ func Upgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 		}
 	}
 
-	return packets
+	return mv671.Upgrade(packets, conn)
 }
 
+// Downgrade ...
 func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
-	packets := make([]gtpacket.Packet, 0, len(pks))
+	downgraded := mv671.Downgrade(pks, conn)
+	packets := make([]gtpacket.Packet, 0, len(downgraded))
 
-	for _, pk := range pks {
+	for _, pk := range downgraded {
 		switch pk := pk.(type) {
 		case *gtpacket.ResourcePackStack:
 			packets = append(packets, &packet.ResourcePackStack{
@@ -206,11 +215,11 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 				Duration: pk.Duration,
 			})
 		case *gtpacket.CraftingData:
-			recipies := make([]protocol.Recipe, 0, len(pk.Recipes))
+			recipes := make([]protocol.Recipe, 0, len(pk.Recipes))
 			for _, r := range pk.Recipes {
 				switch r := r.(type) {
 				case *protocol.ShapedRecipe:
-					recipies = append(recipies, &packet.ShapedRecipe{
+					recipes = append(recipes, &packet.ShapedRecipe{
 						RecipeID:        r.RecipeID,
 						Width:           r.Width,
 						Height:          r.Height,
@@ -222,7 +231,7 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 						RecipeNetworkID: r.RecipeNetworkID,
 					})
 				case *protocol.ShapedChemistryRecipe:
-					recipies = append(recipies, &packet.ShapedChemistryRecipe{
+					recipes = append(recipes, &packet.ShapedChemistryRecipe{
 						ShapedRecipe: packet.ShapedRecipe{
 							RecipeID:        r.RecipeID,
 							Width:           r.Width,
@@ -236,12 +245,12 @@ func Downgrade(pks []gtpacket.Packet, conn *minecraft.Conn) []gtpacket.Packet {
 						},
 					})
 				default:
-					recipies = append(recipies, r)
+					recipes = append(recipes, r)
 				}
 			}
 
 			packets = append(packets, &packet.CraftingData{
-				Recipes:                      recipies,
+				Recipes:                      recipes,
 				PotionRecipes:                pk.PotionRecipes,
 				PotionContainerChangeRecipes: pk.PotionContainerChangeRecipes,
 				MaterialReducers:             pk.MaterialReducers,

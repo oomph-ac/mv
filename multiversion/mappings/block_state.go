@@ -20,13 +20,10 @@ type MVBlockMapping struct {
 	runtimeIDToState map[uint32]blockupgrader.BlockState
 	// LegacyAirRID is the runtime ID of the air block of that mapping.
 	LegacyAirRID uint32
-
-	// oldFormat is true if the block state data is in the old format.
-	oldFormat bool
 }
 
 // blockMapping returns MVBlockMapping instance of all block entries and values in the maps from the resource JSON.
-func blockMapping(blockStateData []byte, oldFormat bool) MVBlockMapping {
+func blockMapping(blockStateData []byte) MVBlockMapping {
 	dec := nbt.NewDecoder(bytes.NewBuffer(blockStateData))
 
 	// Register all block states present in the block_states.nbt file. These are all possible options registered
@@ -56,8 +53,6 @@ func blockMapping(blockStateData []byte, oldFormat bool) MVBlockMapping {
 		blocks:           blocks,
 		stateToRuntimeID: stateToRuntimeID,
 		runtimeIDToState: runtimeIDToState,
-
-		oldFormat: oldFormat,
 	}
 	mappings.LegacyAirRID = mappings.StateToRuntimeID("minecraft:air", nil)
 

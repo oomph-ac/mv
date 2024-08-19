@@ -1,6 +1,7 @@
 package packet
 
 import (
+	v686protocol "github.com/oomph-ac/mv/multiversion/mv686/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	gtpacket "github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
@@ -17,11 +18,11 @@ type ResourcePacksInfo struct {
 	HasScripts bool
 	// BehaviourPack is a list of behaviour packs that the client needs to download before joining the server.
 	// All of these behaviour packs will be applied together.
-	BehaviourPacks []protocol.BehaviourPackInfo
+	BehaviourPacks []v686protocol.BehaviourPackInfo
 	// TexturePacks is a list of texture packs that the client needs to download before joining the server.
 	// The order of these texture packs is not relevant in this packet. It is however important in the
 	// ResourcePackStack packet.
-	TexturePacks []protocol.TexturePackInfo
+	TexturePacks []v686protocol.TexturePackInfo
 	// ForcingServerPacks is currently an unclear field.
 	ForcingServerPacks bool
 	// PackURLs is a list of URLs that the client can use to download a resource pack instead of downloading

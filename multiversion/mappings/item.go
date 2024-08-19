@@ -2,8 +2,6 @@ package mappings
 
 import (
 	_ "embed"
-
-	"github.com/df-mc/dragonfly/server/world"
 	"github.com/sandertv/gophertunnel/minecraft/nbt"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 )
@@ -36,17 +34,6 @@ func itemMapping(itemRuntimeIDData []byte) MVItemMapping {
 		items = append(items, protocol.ItemEntry{
 			Name:      name,
 			RuntimeID: int16(rid),
-		})
-		itemNamesToRuntimeIDs[name] = rid
-		itemRuntimeIDsToNames[rid] = name
-	}
-	for _, it := range world.CustomItems() {
-		name, _ := it.EncodeItem()
-		rid, _, _ := world.ItemRuntimeID(it)
-		items = append(items, protocol.ItemEntry{
-			Name:           name,
-			ComponentBased: true,
-			RuntimeID:      int16(rid),
 		})
 		itemNamesToRuntimeIDs[name] = rid
 		itemRuntimeIDsToNames[rid] = name

@@ -7,9 +7,9 @@ type MVMapping struct {
 }
 
 // Mapping returns MVMapping instance of all block and item entries and values in the maps from the resource JSON.
-func Mapping(blockStateData, itemRuntimeIDData []byte, oldFormat bool) MVMapping {
+func Mapping(blockStateData, itemRuntimeIDData []byte) MVMapping {
 	return MVMapping{
-		MVBlockMapping: blockMapping(blockStateData, oldFormat),
+		MVBlockMapping: blockMapping(blockStateData),
 		MVItemMapping:  itemMapping(itemRuntimeIDData),
 	}
 }
